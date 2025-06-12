@@ -12,7 +12,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "The Library",
+  title: "Inquiry Management System",
   description: "We're here to Increase your Productivity",
 };
 
