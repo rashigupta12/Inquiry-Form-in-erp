@@ -139,25 +139,26 @@ export const InquiriesTable = pgTable(
     jobType: JobType("job_type").notNull(),
     
     // Property Address
+    country: text("country").notNull(),
+    state: text("state").notNull(),
     city: text("city").notNull(),
     area: text("area").notNull(),
     propertyType: PropertyType("property_type").notNull(),
     buildingType: BuildingType("building_type").notNull(),
     buildingName: text("building_name").notNull(),
-    unitNumber: text("unit_number").notNull(),
     mapLocation: text("map_location"),
     
     // Inspection Details
-    inspectionPropertyType: InspectionPropertyType("inspection_property_type").notNull(),
+    inspectionPropertyType: InspectionPropertyType("inspection_property_type"),
     budgetRange: BudgetRange("budget_range").notNull(),
     
     // Timeline and Requirements
     projectUrgency: ProjectUrgency("project_urgency").notNull(),
     specialRequirements: text("special_requirements"),
     
-    // Scheduling
-    preferredInspectionDate: timestamp("preferred_inspection_date", { mode: "date" }).notNull(),
-    alternativeInspectionDate: timestamp("alternative_inspection_date", { mode: "date" }),
+    // // Scheduling
+    preferredInspectionDate: text("preferred_inspection_date"),
+    alternativeInspectionDate: text("alternative_inspection_date"),
     
     // System fields
     createdAt: timestamp("created_at").defaultNow().notNull(),

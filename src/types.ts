@@ -16,7 +16,7 @@ export type NewInquiry = InferInsertModel<typeof InquiriesTable>;
 
 // Inquiry with User relation
 export type InquiryWithUser = Inquiry & {
-  createdBy: User;
+  createdByUser: User;
 };
 
 // Auth Token Types
@@ -28,20 +28,20 @@ export type NewPasswordResetToken = InferInsertModel<typeof PasswordResetTokenTa
 
 // API Request/Response Types
 export interface CreateInquiryRequest {
+  createdBy: string; // User ID
   whatsApp: string;
-  jobType: string;
+  jobType: JobType;
   city: string;
   area: string;
-  propertyType: string;
-  buildingType: string;
+  propertyType: PropertyType;
+  buildingType: BuildingType;
   buildingName: string;
-  unitNumber: string;
   mapLocation?: string;
-  inspectionPropertyType: string;
-  budgetRange: string;
-  projectUrgency: string;
+  inspectionPropertyType?: InspectionPropertyType;
+  budgetRange: BudgetRange;
+  projectUrgency: ProjectUrgency;
   specialRequirements?: string;
-  preferredInspectionDate: Date;
+  preferredInspectionDate?: Date;
   alternativeInspectionDate?: Date;
 }
 
@@ -50,17 +50,20 @@ export interface UpdateInquiryRequest extends Partial<CreateInquiryRequest> {
 }
 
 export interface InquiryFilters {
-  jobType?: string;
+  jobType?: JobType;
+  country?: string;
+  state?: string;
   city?: string;
   area?: string;
-  propertyType?: string;
-  buildingType?: string;
-  inspectionPropertyType?: string;
-  budgetRange?: string;
-  projectUrgency?: string;
+  propertyType?: PropertyType;
+  buildingType?: BuildingType;
+  inspectionPropertyType?: InspectionPropertyType;
+  budgetRange?: BudgetRange;
+  projectUrgency?: ProjectUrgency;
   createdBy?: string;
   dateFrom?: Date;
   dateTo?: Date;
+  search?: string;
 }
 
 export interface PaginationParams {
@@ -82,54 +85,99 @@ export interface PaginatedResponse<T> {
   };
 }
 
-// Enum Values for validation
-export const JOB_TYPES = [
+// Enum Types (derived from schema)
+export type JobType = 
+  | "joineries-wood-work"
+  | "painting-decorating" 
+  | "electrical"
+  | "sanitary-plumbing-toilets-washroom"
+  | "equipment-installation-maintenance"
+  | "other";
+
+export type PropertyType = 
+  | "residential"
+  | "commercial";
+
+export type BuildingType = 
+  | "villa"
+  | "apartment" 
+  | "shop"
+  | "office";
+
+export type InspectionPropertyType = 
+  | "residential"
+  | "commercial"
+  | "industrial";
+
+export type BudgetRange = 
+  | "under-10k"
+  | "10k-50k"
+  | "50k-100k" 
+  | "100k-500k"
+  | "above-500k";
+
+export type ProjectUrgency = 
+  | "urgent"
+  | "normal"
+  | "flexible"
+  | "future-planning";
+
+export type UserRole = 
+  | "SALES_REP" 
+  | "SALES_COORD" 
+  | "TECH_INSPECTOR" 
+  | "SALES_MGR" 
+  | "PROJECT_MGR" 
+  | "ADMIN";
+
+// Constants for validation (can be used in forms, etc.)
+export const JOB_TYPES: JobType[] = [
   "joineries-wood-work",
   "painting-decorating", 
   "electrical",
   "sanitary-plumbing-toilets-washroom",
   "equipment-installation-maintenance",
   "other"
-] as const;
+];
 
-export const PROPERTY_TYPES = [
+export const PROPERTY_TYPES: PropertyType[] = [
   "residential",
   "commercial"
-] as const;
+];
 
-export const BUILDING_TYPES = [
+export const BUILDING_TYPES: BuildingType[] = [
   "villa",
   "apartment", 
   "shop",
   "office"
-] as const;
+];
 
-export const INSPECTION_PROPERTY_TYPES = [
+export const INSPECTION_PROPERTY_TYPES: InspectionPropertyType[] = [
   "residential",
   "commercial",
   "industrial"
-] as const;
+];
 
-export const BUDGET_RANGES = [
+export const BUDGET_RANGES: BudgetRange[] = [
   "under-10k",
   "10k-50k",
   "50k-100k", 
   "100k-500k",
   "above-500k"
-] as const;
+];
 
-export const PROJECT_URGENCIES = [
+export const PROJECT_URGENCIES: ProjectUrgency[] = [
   "urgent",
   "normal",
   "flexible",
   "future-planning"
-] as const;
+];
 
-export const USER_ROLES = [
+export const USER_ROLES: UserRole[] = [
   "SALES_REP", 
   "SALES_COORD", 
   "TECH_INSPECTOR", 
   "SALES_MGR", 
   "PROJECT_MGR", 
   "ADMIN"
-] as const;
+];
