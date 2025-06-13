@@ -47,7 +47,7 @@ export default function AdminDashboard() {
         return (
           <div className="bg-white rounded-xl shadow-sm p-6 border border-emerald-100">
             <h2 className="text-2xl font-bold text-emerald-800 mb-4">Dashboard</h2>
-            <p className="text-emerald-600">Welcome to your admin dashboard.</p>
+            <p className="text-emerald-600">Welcome to your Sales Reperenstative dashboard.</p>
           </div>
         );
     }
