@@ -3,7 +3,7 @@ import LoginForm from "@/components/form/auth/LoginForm";
 function LoginPage() {
   return (
     <div className="mt-3 flex items-center">
-      <div className="flex-grow">
+      <div className="flex-grow bg-gradient-to-r from-emerald-500 to-blue-500">
         <LoginForm />
       </div>
     </div>

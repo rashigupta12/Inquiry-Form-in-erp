@@ -96,6 +96,14 @@ export const JobType = pgEnum("job_type", [
   "other"
 ]);
 
+export const InquiryStatus = pgEnum("inquiry_status", [
+  "new",
+  "in-progress",
+  "completed",
+  "cancelled",
+  "on-hold"
+]);
+
 export const PropertyType = pgEnum("property_type", [
   "residential",
   "commercial"
@@ -135,17 +143,19 @@ export const InquiriesTable = pgTable(
   {
     id: uuid("id").defaultRandom().primaryKey().notNull(),
     createdBy: uuid("created_by").references(() => UsersTable.id).notNull(),
-    whatsApp: text("whats_app").notNull(),
+    name: text("name").notNull(),
+    email: text("email").notNull(),
+    ContactNumber: text("contact_number").notNull(),
     jobType: JobType("job_type").notNull(),
     
     // Property Address
-    country: text("country").notNull(),
-    state: text("state").notNull(),
-    city: text("city").notNull(),
+    country: text("country"),
+    state: text("state"),
+    city: text("city"),
     area: text("area").notNull(),
-    propertyType: PropertyType("property_type").notNull(),
-    buildingType: BuildingType("building_type").notNull(),
-    buildingName: text("building_name").notNull(),
+    propertyType: PropertyType("property_type"),
+    buildingType: BuildingType("building_type"),
+    buildingName: text("building_name"),
     mapLocation: text("map_location"),
     
     // Inspection Details
@@ -153,12 +163,14 @@ export const InquiriesTable = pgTable(
     budgetRange: BudgetRange("budget_range").notNull(),
     
     // Timeline and Requirements
-    projectUrgency: ProjectUrgency("project_urgency").notNull(),
+    projectUrgency: ProjectUrgency("project_urgency"),
     specialRequirements: text("special_requirements"),
     
     // // Scheduling
     preferredInspectionDate: text("preferred_inspection_date"),
     alternativeInspectionDate: text("alternative_inspection_date"),
+    // Status
+    status: InquiryStatus("status").default("new").notNull(),
     
     // System fields
     createdAt: timestamp("created_at").defaultNow().notNull(),

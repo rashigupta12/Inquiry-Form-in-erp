@@ -1,0 +1,2 @@
+CREATE TYPE "public"."inquiry_status" AS ENUM('new', 'in-progress', 'completed', 'cancelled', 'on-hold');--> statement-breakpoint
+ALTER TABLE "inquiries" ADD COLUMN "status" "inquiry_status" DEFAULT 'new' NOT NULL;

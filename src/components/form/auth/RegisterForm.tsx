@@ -24,6 +24,7 @@ import { registerUser } from "@/actions/registerUser";
 import MainButton from "@/components/common/MainButton";
 import { FormError } from "../form-error";
 import { FormSuccess } from "../form-success";
+import Image from 'next/image';
 
 const FormSchema = RegisterUserSchema;
 
@@ -77,12 +78,18 @@ const RegisterForm = ({ text, role }: RegisterFormProps) => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <Card className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center  py-12 px-4 sm:px-6 lg:px-8">
+      <Card className="w-full max-w-md bg-white shadow-xl">
         <CardHeader>
           <div className="text-center">
-            <h2 className="text-3xl font-bold text-gray-900">Hello!</h2>
-            <p className="mt-2 text-sm text-gray-600">{text}</p>
+            <Image
+              src="/Picture1.jpg"
+              alt="Logo"
+              width={100}
+              height={100}
+              className="mx-auto mb-4"
+            />
+            <h1 className="text-2xl font-bold text-gray-800">Create Account</h1>
           </div>
         </CardHeader>
         <CardContent>
@@ -95,15 +102,15 @@ const RegisterForm = ({ text, role }: RegisterFormProps) => {
                   <FormItem>
                     <FormControl>
                       <div className="relative">
-                        <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5" />
+                        <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-emerald-500" />
                         <Input
                           {...field}
-                          className="h-12 pl-10 w-full rounded-lg"
+                          className="h-12 pl-10 w-full rounded-lg border-gray-300 focus:border-emerald-500 focus:ring-emerald-500"
                           placeholder="Full name"
                         />
                       </div>  
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-red-500" />
                   </FormItem>
                 )}
               />
@@ -115,16 +122,16 @@ const RegisterForm = ({ text, role }: RegisterFormProps) => {
                   <FormItem>
                     <FormControl>
                       <div className="relative">
-                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 h-5 w-5" />
+                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-emerald-500 h-5 w-5" />
                         <Input
                           {...field}
-                          className="h-12 pl-10 w-full rounded-lg"
+                          className="h-12 pl-10 w-full rounded-lg border-gray-300 focus:border-emerald-500 focus:ring-emerald-500"
                           placeholder="Email Address"
                           type="email"
                         />
                       </div>
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-red-500" />
                   </FormItem>
                 )}
               />
@@ -136,15 +143,15 @@ const RegisterForm = ({ text, role }: RegisterFormProps) => {
                   <FormItem>
                     <FormControl>
                       <div className="relative">
-                        <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 h-5 w-5" />
+                        <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-emerald-500 h-5 w-5" />
                         <Input
                           {...field}
-                          className="h-12 pl-10 w-full rounded-lg"
+                          className="h-12 pl-10 w-full rounded-lg border-gray-300 focus:border-emerald-500 focus:ring-emerald-500"
                           placeholder="Phone Number"
                         />
                       </div>
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-red-500" />
                   </FormItem>
                 )}
               />
@@ -156,17 +163,17 @@ const RegisterForm = ({ text, role }: RegisterFormProps) => {
                   <FormItem>
                     <FormControl>
                       <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 h-5 w-5" />
+                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-emerald-500 h-5 w-5" />
                         <Input
                           {...field}
-                          className="h-12 pl-10 pr-10 w-full rounded-lg"
+                          className="h-12 pl-10 pr-10 w-full rounded-lg border-gray-300 focus:border-emerald-500 focus:ring-emerald-500"
                           type={showPassword ? "text" : "password"}
                           placeholder="Password"
                         />
                         <button
                           type="button"
                           onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-emerald-600 transition-colors"
                         >
                           {showPassword ? (
                             <EyeOff className="h-5 w-5" />
@@ -176,17 +183,17 @@ const RegisterForm = ({ text, role }: RegisterFormProps) => {
                         </button>
                       </div>
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-red-500" />
                   </FormItem>
                 )}
               />
 
-              <FormError message={error} />
-              <FormSuccess message={success} />
+              <FormError message={error}  />
+              <FormSuccess message={success}  />
 
               <MainButton
                 text="Register"
-                classes="h-12 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-200"
+                classes="h-12 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-200 bg-gradient-to-r from-emerald-500 to-blue-500 text-white hover:from-emerald-600 hover:to-blue-600"
                 width="full_width"
                 isSubmitable
                 isLoading={isPending}
@@ -195,7 +202,7 @@ const RegisterForm = ({ text, role }: RegisterFormProps) => {
               <div className="text-center mt-4">
                 <Link 
                   href="/auth/login" 
-                  className="text-sm font-semibold text-blue-600 hover:text-blue-800 transition-colors duration-200"
+                  className="text-sm font-semibold text-emerald-600 hover:text-emerald-800 transition-colors duration-200"
                 >
                   Already have an account? Login Instead
                 </Link>

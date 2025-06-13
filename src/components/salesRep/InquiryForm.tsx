@@ -6,7 +6,22 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Edit, Plus, Save, Search, Trash2, X } from "lucide-react";
+import {
+  Edit,
+  Plus,
+  Save,
+  Search,
+  Trash2,
+  X,
+  Calendar,
+  MapPin,
+  Phone,
+  Home,
+  Building,
+  Clock,
+  DollarSign,
+  FileText,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import DeleteConfirmation from "../common/DeleteComfirmation";
 import {
@@ -16,17 +31,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-// import { DatePicker } from "@/components/ui/date-picker";
-// import { useInquiryStore } from "@/stores/useInquiryStore";
-import {
-  Inquiry,
-  JobType,
-  PropertyType,
-  BuildingType,
-  InspectionPropertyType,
-  BudgetRange,
-  ProjectUrgency,
-} from "@/types";
 import { useInquiryStore } from "@/store/inquiry";
 import {
   ICountry,
@@ -37,6 +41,7 @@ import {
   City,
 } from "country-state-city";
 import { useCurrentUser } from "@/hooks/auth";
+import { Inquiry, InquiryWithUser } from "@/types";
 
 const InquiryPage = () => {
   const user = useCurrentUser();
@@ -54,21 +59,20 @@ const InquiryPage = () => {
   const [selectedCountry, setSelectedCountry] = useState<ICountry | null>(null);
   const [selectedState, setSelectedState] = useState<IState | null>(null);
   const [selectedCity, setSelectedCity] = useState<ICity | null>(null);
-
-  // Get all countries with error handling
   const [allCountries, setAllCountries] = useState<ICountry[]>([]);
-
   const [searchTerm, setSearchTerm] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [currentInquiry, setCurrentInquiry] = useState<Inquiry | null>(null);
 
   const [formData, setFormData] = useState<Partial<Inquiry>>({
-    createdBy: user?.id, // Assuming createdBy is set elsewhere
-    whatsApp: "",
-    jobType: "other",
-    country: "India",
-    state: "Delhi",
-    city: "",
+    createdBy: user?.id,
+    name: "",
+    email: "",
+    ContactNumber: "",
+    jobType: "joineries-wood-work",
+    country: "United Arab Emirates",
+    state: "Dubai", // Add this line
+    city: "Dubai", // Add this line
     area: "",
     propertyType: "residential",
     buildingType: "villa",
@@ -78,12 +82,54 @@ const InquiryPage = () => {
     projectUrgency: "normal",
     preferredInspectionDate: undefined,
     alternativeInspectionDate: undefined,
+    specialRequirements: "",
+    status: "new",
+    mapLocation: "",
   });
+
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [confirmText, setConfirmText] = useState("");
   const [onConfirmCallback, setOnConfirmCallback] = useState<
     (() => void) | null
   >(null);
+
+  useEffect(() => {
+    // Initialize with UAE, Dubai, Dubai
+    const initializeLocation = () => {
+      // Find UAE country object
+      const uaeCountry = allCountries.find(
+        (country) => country.name === "United Arab Emirates"
+      );
+
+      if (uaeCountry) {
+        setSelectedCountry(uaeCountry);
+
+        // Get states for UAE
+        const uaeStates = State.getStatesOfCountry(uaeCountry.isoCode);
+        const dubaiState = uaeStates.find((state) => state.name === "Dubai");
+
+        if (dubaiState) {
+          setSelectedState(dubaiState);
+
+          // Get cities for Dubai state
+          const dubaicities = City.getCitiesOfState(
+            dubaiState.countryCode,
+            dubaiState.isoCode
+          );
+          const dubaiCity = dubaicities.find((city) => city.name === "Dubai");
+
+          if (dubaiCity) {
+            setSelectedCity(dubaiCity);
+          }
+        }
+      }
+    };
+
+    // Only initialize if countries are loaded and no country is selected yet
+    if (allCountries.length > 0 && !selectedCountry) {
+      initializeLocation();
+    }
+  }, [allCountries, selectedCountry]);
 
   // Initialize countries on component mount
   useEffect(() => {
@@ -96,7 +142,7 @@ const InquiryPage = () => {
     }
   }, []);
 
-  // Get states for selected country with error handling
+  // Get states for selected country
   const [states, setStates] = useState<IState[]>([]);
   useEffect(() => {
     if (selectedCountry) {
@@ -112,7 +158,7 @@ const InquiryPage = () => {
     }
   }, [selectedCountry]);
 
-  // Get cities for selected state with error handling
+  // Get cities for selected state
   const [cities, setCities] = useState<ICity[]>([]);
   useEffect(() => {
     if (selectedState && selectedCountry) {
@@ -131,40 +177,26 @@ const InquiryPage = () => {
     }
   }, [selectedState, selectedCountry]);
 
+  // Update form data when location selections change
   useEffect(() => {
     if (selectedCountry) {
-      setFormData((prev) => ({
-        ...prev,
-        country: selectedCountry.name,
-      }));
+      setFormData((prev) => ({ ...prev, country: selectedCountry.name }));
     }
   }, [selectedCountry]);
 
   useEffect(() => {
     if (selectedState) {
-      setFormData((prev) => ({
-        ...prev,
-        state: selectedState.name,
-      }));
+      setFormData((prev) => ({ ...prev, state: selectedState.name }));
     } else {
-      setFormData((prev) => ({
-        ...prev,
-        state: "",
-      }));
+      setFormData((prev) => ({ ...prev, state: "" }));
     }
   }, [selectedState]);
 
   useEffect(() => {
     if (selectedCity) {
-      setFormData((prev) => ({
-        ...prev,
-        city: selectedCity.name,
-      }));
+      setFormData((prev) => ({ ...prev, city: selectedCity.name }));
     } else {
-      setFormData((prev) => ({
-        ...prev,
-        city: "",
-      }));
+      setFormData((prev) => ({ ...prev, city: "" }));
     }
   }, [selectedCity]);
 
@@ -172,11 +204,13 @@ const InquiryPage = () => {
     fetchInquiries();
   }, [fetchInquiries]);
 
+  console.log("Inquires:", inquiries);
+
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData((prev: Partial<Inquiry>) => ({ ...prev, [name]: value }));
   };
 
   const handleSelectChange = (name: string, value: string) => {
@@ -190,9 +224,13 @@ const InquiryPage = () => {
   const resetForm = () => {
     setFormData({
       createdBy: user?.id || "",
-      whatsApp: "",
-      jobType: "other",
-      city: "",
+      name: "",
+      email: "",
+      ContactNumber: "",
+      jobType: "joineries-wood-work",
+      country: "United Arab Emirates",
+      state: "Dubai", // Add this line
+      city: "Dubai", // Add this line
       area: "",
       propertyType: "residential",
       buildingType: "villa",
@@ -202,7 +240,18 @@ const InquiryPage = () => {
       projectUrgency: "normal",
       preferredInspectionDate: undefined,
       alternativeInspectionDate: undefined,
+      specialRequirements: "",
+      status: "new",
+      mapLocation: "",
     });
+
+    const uaeCountry = allCountries.find(
+      (country) => country.name === "United Arab Emirates"
+    );
+    if (uaeCountry) {
+      setSelectedCountry(uaeCountry);
+      // You might also want to reset state and city selections here
+    }
   };
 
   const openSidebar = (inquiry: Inquiry | null = null) => {
@@ -236,8 +285,8 @@ const InquiryPage = () => {
     clearError();
 
     // Required field validation
-    if (!formData.whatsApp) {
-      confirm("WhatsApp number is required");
+    if (!formData.name && !formData.ContactNumber) {
+      confirm("Name is required");
       return;
     }
     if (!formData.jobType) {
@@ -284,13 +333,18 @@ const InquiryPage = () => {
 
   const filteredInquiries = inquiries.filter(
     (inquiry: Inquiry) =>
-      inquiry.whatsApp.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      inquiry.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      inquiry.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      inquiry.ContactNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
       inquiry.city?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       inquiry.area?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       inquiry.buildingName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       inquiry.specialRequirements
         ?.toLowerCase()
-        .includes(searchTerm.toLowerCase())
+        .includes(searchTerm.toLowerCase()) ||
+      inquiry.jobType.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      inquiry.budgetRange?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      inquiry.status.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const capitalizeFirstLetter = (str: string): string => {
@@ -305,7 +359,7 @@ const InquiryPage = () => {
   };
 
   return (
-    <div className="relative space-y-4">
+    <div className="w-full">
       {error && (
         <Alert variant="destructive" className="mb-4">
           <AlertDescription>{error}</AlertDescription>
@@ -313,72 +367,94 @@ const InquiryPage = () => {
       )}
 
       {/* Header Section */}
-      <div className="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-3 mb-4">
-        <h2 className="text-xl font-semibold md:mr-4">Inquiry Management</h2>
-
-        <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto">
-          <div className="relative w-full md:w-64">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <Input
-              placeholder="Search inquiries..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-9 w-full"
-            />
+      <div className="bg-white rounded-xl shadow-sm p-4 md:p-6 mb-6 border border-emerald-100">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div>
+            <h2 className="text-2xl font-bold text-emerald-800">
+              Inquiry Management
+            </h2>
+            <p className="text-sm text-gray-500 mt-1">
+              Manage and track customer inquiries
+            </p>
           </div>
 
-          <Button onClick={() => openSidebar()} className="w-full md:w-auto">
-            <Plus className="h-4 w-4 mr-2" />
-            Add Inquiry
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+            <div className="relative w-full">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Input
+                placeholder="Search inquiries..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-9 w-full"
+              />
+            </div>
+
+            <Button
+              onClick={() => openSidebar()}
+              className="w-full sm:w-auto bg-gradient-to-r from-emerald-600 to-blue-600 hover:from-emerald-700 hover:to-blue-700 text-white shadow-lg"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Add Inquiry
+            </Button>
+          </div>
         </div>
       </div>
 
       {/* Inquiries Table */}
-      <div className="bg-white rounded-md shadow overflow-hidden">
+      <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-emerald-100">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+            <thead className="bg-emerald-50">
               <tr>
                 <th
                   scope="col"
-                  className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-12"
+                  className="px-6 py-3 text-left text-xs font-medium text-emerald-800 uppercase tracking-wider"
                 >
-                  S.No.
+                  #
+                </th>
+
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-emerald-800 uppercase tracking-wider"
+                >
+                  <div className="flex items-center gap-1">
+                    <Phone className="h-4 w-4" />
+                    Contact
+                  </div>
                 </th>
                 <th
                   scope="col"
-                  className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
-                  WhatsApp
-                </th>
-                <th
-                  scope="col"
-                  className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  className="px-6 py-3 text-left text-xs font-medium text-emerald-800 uppercase tracking-wider"
                 >
                   Job Type
                 </th>
                 <th
                   scope="col"
-                  className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell"
+                  className="px-6 py-3 text-left text-xs font-medium text-emerald-800 uppercase tracking-wider hidden md:table-cell"
                 >
-                  Location
+                  <div className="flex items-center gap-1">
+                    <MapPin className="h-4 w-4" />
+                    Location
+                  </div>
                 </th>
                 <th
                   scope="col"
-                  className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell"
+                  className="px-6 py-3 text-left text-xs font-medium text-emerald-800 uppercase tracking-wider hidden lg:table-cell"
                 >
-                  Budget
+                  <div className="flex items-center gap-1">Budget</div>
                 </th>
                 <th
                   scope="col"
-                  className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell"
+                  className="px-6 py-3 text-left text-xs font-medium text-emerald-800 uppercase tracking-wider hidden sm:table-cell"
                 >
-                  Inspection Date
+                  <div className="flex items-center gap-1">
+                    <Calendar className="h-4 w-4" />
+                    Inspection Date
+                  </div>
                 </th>
                 <th
                   scope="col"
-                  className="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  className="px-6 py-3 text-right text-xs font-medium text-emerald-800 uppercase tracking-wider"
                 >
                   Actions
                 </th>
@@ -389,7 +465,7 @@ const InquiryPage = () => {
                 <tr>
                   <td colSpan={7} className="text-center py-10">
                     <div className="flex justify-center mb-2">
-                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
+                      <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-emerald-500"></div>
                     </div>
                     <p className="text-gray-500">Loading inquiries...</p>
                   </td>
@@ -397,60 +473,103 @@ const InquiryPage = () => {
               ) : filteredInquiries.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="text-center py-10">
-                    <p className="text-gray-500">
-                      {searchTerm
-                        ? "No inquiries match your search"
-                        : "No inquiries found"}
-                    </p>
+                    <div className="flex flex-col items-center justify-center">
+                      <Search className="h-10 w-10 text-gray-400 mb-2" />
+                      <p className="text-gray-500">
+                        {searchTerm
+                          ? "No inquiries match your search"
+                          : "No inquiries found"}
+                      </p>
+                      {!searchTerm && (
+                        <Button
+                          onClick={() => openSidebar()}
+                          className="mt-4 bg-gradient-to-r from-emerald-600 to-blue-600"
+                        >
+                          <Plus className="h-4 w-4 mr-2" />
+                          Create New Inquiry
+                        </Button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ) : (
                 filteredInquiries.map((inquiry: Inquiry, index: number) => (
-                  <tr key={inquiry.id} className="hover:bg-gray-50">
-                    <td className="px-3 py-1 whitespace-nowrap text-sm text-gray-500">
+                  <tr
+                    key={inquiry.id}
+                    className="hover:bg-emerald-50/50 transition-colors"
+                  >
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                       {index + 1}
                     </td>
-                    <td className="px-3 py-1 whitespace-nowrap text-sm font-medium">
-                      {inquiry.whatsApp}
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm text-gray-600">
+                            {inquiry.name}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Phone className="h-4 w-4 text-gray-400" />
+                          <span className="text-sm text-gray-600">
+                            {inquiry.ContactNumber}
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm text-gray-600">
+                            {inquiry.email}
+                          </span>
+                        </div>
+                      </div>
                     </td>
-                    <td className="px-3 py-1 whitespace-nowrap">
-                      <Badge variant="outline" className="text-xs">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <Badge variant="secondary" className="text-xs">
                         {capitalizeFirstLetter(
                           inquiry.jobType.replace(/-/g, " ")
                         )}
                       </Badge>
                     </td>
-                    <td className="px-3 py-1 hidden md:table-cell">
-                      <p className="text-sm text-gray-500">
-                        {inquiry.city}, {inquiry.area}
-                      </p>
+                    <td className="px-6 py-4 hidden md:table-cell">
+                      <div className="flex items-center gap-1">
+                        <MapPin className="h-4 w-4 text-gray-400" />
+                        <span className="text-sm text-gray-600">
+                          {inquiry.city}, {inquiry.area}
+                        </span>
+                      </div>
                     </td>
-                    <td className="px-3 py-1 hidden lg:table-cell">
-                      <Badge variant="outline" className="text-xs">
-                        {capitalizeFirstLetter(
+                    <td className="px-6 py-4 hidden lg:table-cell">
+                      <Badge
+                        variant="outline"
+                        className="text-xs bg-blue-50 text-blue-700"
+                      >
+                        {/* {capitalizeFirstLetter(
                           inquiry.budgetRange?.replace(/-/g, " ") || ""
-                        )}
+                        )} */}
+                        {inquiry.budgetRange}
                       </Badge>
                     </td>
-                    <td className="px-3 py-1 hidden sm:table-cell">
-                      <p className="text-sm text-gray-500">
-                        {formatDate(
-                          inquiry.preferredInspectionDate ?? undefined
-                        )}
-                      </p>
+                    <td className="px-6 py-4 hidden sm:table-cell">
+                      <div className="flex items-center gap-1">
+                        <Calendar className="h-4 w-4 text-gray-400" />
+                        <span className="text-sm text-gray-600">
+                          {formatDate(
+                            inquiry.preferredInspectionDate ?? undefined
+                          )}
+                        </span>
+                      </div>
                     </td>
-                    <td className="px-3 py-1 whitespace-nowrap text-right text-sm font-medium">
-                      <div className="flex justify-end gap-1">
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <div className="flex justify-end gap-2">
                         <Button
-                          variant="ghost"
+                          variant="outline"
                           size="sm"
-                          className="h-8 w-8 p-0"
+                          className="h-8 w-8 p-0 text-emerald-600 hover:text-emerald-800 hover:bg-emerald-100"
                           onClick={() => openSidebar(inquiry)}
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
                         <Button
-                          variant="ghost"
+                          variant="outline"
                           size="sm"
                           className="h-8 w-8 p-0 text-red-500 hover:text-red-600 hover:bg-red-50"
                           onClick={() => handleDelete(inquiry.id)}
@@ -469,460 +588,620 @@ const InquiryPage = () => {
 
       {/* Right Sidebar Form */}
       <div
-        className={`fixed inset-y-0 right-0 w-full sm:w-96 bg-white shadow-lg border-l border-gray-200 transform transition-transform duration-300 ease-in-out z-50 ${
+        className={`fixed inset-y-0 right-0 w-full md:w-[65%] lg:w-[55%] bg-white shadow-xl border-l border-gray-200 transform transition-transform duration-300 ease-in-out z-50 ${
           sidebarOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
         <div className="flex flex-col h-full">
-          <div className="bg-gradient-to-r from-emerald-500 to-blue-500 text-white shadow-lg transform scale-105">
-            <h3 className="text-lg font-medium">
-              {currentInquiry ? "Edit Inquiry" : "Add New Inquiry"}
-            </h3>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-8 w-8 p-0 rounded-full"
-              onClick={closeSidebar}
-            >
-              <X className="h-4 w-4" />
-            </Button>
+          <div className="bg-gradient-to-r from-emerald-600 to-blue-600 p-4 text-white">
+            <div className="flex justify-between items-center">
+              <h3 className="text-xl font-semibold">
+                {currentInquiry ? "Edit Inquiry" : "New Inquiry"}
+              </h3>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 p-0 rounded-full text-white hover:bg-white/10"
+                onClick={closeSidebar}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
+
           <div className="p-4 flex-1 overflow-y-auto">
-            <form className="space-y-4" onSubmit={handleSubmit}>
-              <div>
-                <label
-                  htmlFor="jobType"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  Job Type <span className="text-red-500">*</span>
-                </label>
-                <Select
-                  value={formData.jobType}
-                  onValueChange={(value) =>
-                    handleSelectChange("jobType", value)
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select job type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {[
-                      "joineries-wood-work",
-                      "painting-decorating",
-                      "electrical",
-                      "sanitary-plumbing-toilets-washroom",
-                      "equipment-installation-maintenance",
-                      "other",
-                    ].map((type) => (
-                      <SelectItem key={type} value={type}>
-                        {capitalizeFirstLetter(type.replace(/-/g, " "))}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                {/* Country Select */}
-                <div className="space-y-1">
-                  <label
-                    htmlFor="country"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    Country <span className="text-red-500">*</span>
-                  </label>
-                  <Select
-                    value={formData.country || ""}
-                    onValueChange={(value) => {
-                      const country = allCountries.find(
-                        (c) => c.name === value
-                      );
-                      setSelectedCountry(country || null);
-                      setSelectedState(null);
-                      setSelectedCity(null);
-                      handleSelectChange("country", value);
-                    }}
-                    disabled={loading || allCountries.length === 0}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select country" />
-                    </SelectTrigger>
-                    <SelectContent className="max-h-[300px] overflow-y-auto">
-                      {allCountries.map((country) => (
-                        <SelectItem key={country.isoCode} value={country.name}>
-                          {country.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+            <form className="space-y-6" onSubmit={handleSubmit}>
+              {/* Main form sections with better spacing */}
+              <div className="space-y-8">
+                {/* Contact Information */}
+                <div className="bg-gray-50 p-2 rounded-lg">
+                  <h4 className="text-sm font-medium text-gray-700 uppercase tracking-wider flex items-center gap-2 mb-2">
+                    <Phone className="h-4 w-4" />
+                    Contact Information
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {" "}
+                    {/* Changed from 2 to 3 columns */}
+                    <div>
+                      <label
+                        htmlFor="name"
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
+                        Name <span className="text-red-500">*</span>
+                      </label>
+                      <Input
+                        type="text"
+                        id="name"
+                        name="name"
+                        value={formData.name || ""}
+                        onChange={handleInputChange}
+                        required
+                        placeholder="Enter your name"
+                      />
+                    </div>
+                    <div>
+                      <label
+                        htmlFor="email"
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
+                        Email <span className="text-red-500">*</span>
+                      </label>
+                      <Input
+                        type="email"
+                        id="email"
+                        name="email"
+                        value={formData.email || ""}
+                        onChange={handleInputChange}
+                        required
+                        placeholder="Enter your email"
+                      />
+                    </div>
+                    <div>
+                      <label
+                        htmlFor="ContactNumber"
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
+                        Contact Number <span className="text-red-500">*</span>
+                      </label>
+                      <Input
+                        type="tel"
+                        id="ContactNumber"
+                        name="ContactNumber"
+                        value={formData.ContactNumber || ""}
+                        onChange={handleInputChange}
+                        required
+                        placeholder="Enter your contact number"
+                      />
+                    </div>
+                  </div>
                 </div>
 
-                {/* State Select */}
-                <div className="space-y-1">
-                  <label
-                    htmlFor="state"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    State/Province <span className="text-red-500">*</span>
-                  </label>
-                  <Select
-                    value={formData.state || ""}
-                    onValueChange={(value) => {
-                      const state = states.find((s) => s.name === value);
-                      setSelectedState(state || null);
-                      setSelectedCity(null);
-                      handleSelectChange("state", value);
-                    }}
-                    disabled={
-                      !selectedCountry || loading || states.length === 0
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue
-                        placeholder={
-                          selectedCountry
-                            ? "Select state"
-                            : "Select country first"
+                {/* Job Details */}
+                <div className="bg-gray-50 p-2 rounded-lg">
+                  <h4 className="text-sm font-medium text-gray-700 uppercase tracking-wider flex items-center gap-2 mb-2">
+                    <Home className="h-4 w-4" />
+                    Job Details
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label
+                        htmlFor="jobType"
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
+                        Job Type <span className="text-red-500">*</span>
+                      </label>
+                      <Select
+                        value={formData.jobType || "joineries-wood-work"}
+                        onValueChange={(value) =>
+                          handleSelectChange("jobType", value)
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select job type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {[
+                            "joineries-wood-work",
+                            "painting-decorating",
+                            "electrical",
+                            "sanitary-plumbing-toilets-washroom",
+                            "equipment-installation-maintenance",
+                            "other",
+                          ].map((type) => (
+                            <SelectItem key={type} value={type}>
+                              {capitalizeFirstLetter(type.replace(/-/g, " "))}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <label
+                        htmlFor="budgetRange"
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
+                        Budget Range<span className="text-red-500">*</span>
+                      </label>
+                      <Select
+                        value={formData.budgetRange || "under-10k"}
+                        onValueChange={(value) =>
+                          handleSelectChange("budgetRange", value)
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select budget range" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {[
+                            "under-10k",
+                            "10k-50k",
+                            "50k-100k",
+                            "100k-500k",
+                            "above-500k",
+                          ].map((range) => (
+                            <SelectItem key={range} value={range}>
+                              {capitalizeFirstLetter(range.replace(/-/g, " "))}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <label
+                        htmlFor="projectUrgency"
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
+                        Project Urgency<span className="text-red-500">*</span>
+                      </label>
+                      <Select
+                        value={formData.projectUrgency ?? "urgent"}
+                        onValueChange={(value) =>
+                          handleSelectChange("projectUrgency", value)
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select urgency" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {[
+                            "urgent",
+                            "normal",
+                            "flexible",
+                            "future-planning",
+                          ].map((urgency) => (
+                            <SelectItem key={urgency} value={urgency}>
+                              {capitalizeFirstLetter(
+                                urgency.replace(/-/g, " ")
+                              )}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <label
+                        htmlFor="preferredInspectionDate"
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
+                        Preferred Inspection Date
+                        <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="date"
+                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        value={
+                          formData.preferredInspectionDate
+                            ? new Date(formData.preferredInspectionDate)
+                                .toISOString()
+                                .split("T")[0]
+                            : ""
+                        }
+                        onChange={(e) =>
+                          handleDateChange(
+                            "preferredInspectionDate",
+                            e.target.value
+                              ? new Date(e.target.value)
+                              : undefined
+                          )
                         }
                       />
-                    </SelectTrigger>
-                    <SelectContent className="max-h-[300px] overflow-y-auto">
-                      {states.length > 0 ? (
-                        states.map((state) => (
-                          <SelectItem key={state.isoCode} value={state.name}>
-                            {state.name}
-                          </SelectItem>
-                        ))
-                      ) : (
-                        <SelectItem value="-" disabled>
-                          No states available
-                        </SelectItem>
-                      )}
-                    </SelectContent>
-                  </Select>
+                    </div>
+                  </div>
                 </div>
 
-                {/* City Select */}
-                <div className="space-y-1">
-                  <label
-                    htmlFor="city"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    City <span className="text-red-500">*</span>
-                  </label>
-                  <Select
-                    value={formData.city || ""}
-                    onValueChange={(value) => {
-                      const city = cities.find((c) => c.name === value);
-                      setSelectedCity(city || null);
-                      handleSelectChange("city", value);
-                    }}
-                    disabled={!selectedState || loading || cities.length === 0}
-                  >
-                    <SelectTrigger>
-                      <SelectValue
-                        placeholder={
-                          selectedState ? "Select city" : "Select state first"
+                {/* Location Information */}
+                <div className="bg-gray-50 p-2 rounded-lg">
+                  <h4 className="text-sm font-medium text-gray-700 uppercase tracking-wider flex items-center gap-2 mb-2">
+                    <MapPin className="h-4 w-4" />
+                    Location Information <span className="text-red-500">*</span>
+                  </h4>
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div>
+                        <label
+                          htmlFor="country"
+                          className="block text-sm font-medium text-gray-700 mb-1"
+                        >
+                          Country <span className="text-red-500">*</span>
+                        </label>
+                        <Select
+                          value={formData.country || ""}
+                          onValueChange={(value) => {
+                            const country = allCountries.find(
+                              (c) => c.name === value
+                            );
+                            setSelectedCountry(country || null);
+                            setSelectedState(null);
+                            setSelectedCity(null);
+                            handleSelectChange("country", value);
+                          }}
+                          disabled={loading || allCountries.length === 0}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select country" />
+                          </SelectTrigger>
+                          <SelectContent className="max-h-[300px] overflow-y-auto">
+                            {allCountries.map((country) => (
+                              <SelectItem
+                                key={country.isoCode}
+                                value={country.name}
+                              >
+                                {country.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div>
+                        <label
+                          htmlFor="state"
+                          className="block text-sm font-medium text-gray-700 mb-1"
+                        >
+                          State/Province <span className="text-red-500">*</span>
+                        </label>
+                        <Select
+                          value={formData.state || ""}
+                          onValueChange={(value) => {
+                            const state = states.find((s) => s.name === value);
+                            setSelectedState(state || null);
+                            setSelectedCity(null);
+                            handleSelectChange("state", value);
+                          }}
+                          disabled={
+                            !selectedCountry || loading || states.length === 0
+                          }
+                        >
+                          <SelectTrigger>
+                            <SelectValue
+                              placeholder={
+                                selectedCountry
+                                  ? "Select state"
+                                  : "Select country first"
+                              }
+                            />
+                          </SelectTrigger>
+                          <SelectContent className="max-h-[300px] overflow-y-auto">
+                            {states.length > 0 ? (
+                              states.map((state) => (
+                                <SelectItem
+                                  key={state.isoCode}
+                                  value={state.name}
+                                >
+                                  {state.name}
+                                </SelectItem>
+                              ))
+                            ) : (
+                              <SelectItem value="-" disabled>
+                                No states available
+                              </SelectItem>
+                            )}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div>
+                        <label
+                          htmlFor="city"
+                          className="block text-sm font-medium text-gray-700 mb-1"
+                        >
+                          City <span className="text-red-500">*</span>
+                        </label>
+                        <Select
+                          value={formData.city || ""}
+                          onValueChange={(value) => {
+                            const city = cities.find((c) => c.name === value);
+                            setSelectedCity(city || null);
+                            handleSelectChange("city", value);
+                          }}
+                          disabled={
+                            !selectedState || loading || cities.length === 0
+                          }
+                        >
+                          <SelectTrigger>
+                            <SelectValue
+                              placeholder={
+                                selectedState
+                                  ? "Select city"
+                                  : "Select state first"
+                              }
+                            />
+                          </SelectTrigger>
+                          <SelectContent className="max-h-[300px] overflow-y-auto">
+                            {cities.length > 0 ? (
+                              cities.map((city) => (
+                                <SelectItem
+                                  key={`${city.name}-${city.stateCode}`}
+                                  value={city.name}
+                                >
+                                  {city.name}
+                                </SelectItem>
+                              ))
+                            ) : (
+                              <SelectItem value="-" disabled>
+                                No cities available
+                              </SelectItem>
+                            )}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label
+                        htmlFor="area"
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
+                        Area/Locality <span className="text-red-500">*</span>
+                      </label>
+                      <Input
+                        id="area"
+                        name="area"
+                        value={formData.area || ""}
+                        onChange={handleInputChange}
+                        placeholder="Enter area/locality"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Property Information */}
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <h4 className="text-sm font-medium text-gray-700 uppercase tracking-wider flex items-center gap-2 mb-4">
+                    <Building className="h-4 w-4" />
+                    Property Information
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label
+                        htmlFor="propertyType"
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
+                        Property Type
+                      </label>
+                      <Select
+                        value={formData.propertyType ?? undefined}
+                        onValueChange={(value) =>
+                          handleSelectChange("propertyType", value)
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select property type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {["residential", "commercial"].map((type) => (
+                            <SelectItem key={type} value={type}>
+                              {capitalizeFirstLetter(type)}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <label
+                        htmlFor="buildingType"
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
+                        Building Type
+                      </label>
+                      <Select
+                        value={formData.buildingType ?? undefined}
+                        onValueChange={(value) =>
+                          handleSelectChange("buildingType", value)
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select building type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {["villa", "apartment", "shop", "office"].map(
+                            (type) => (
+                              <SelectItem key={type} value={type}>
+                                {capitalizeFirstLetter(type)}
+                              </SelectItem>
+                            )
+                          )}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <label
+                        htmlFor="buildingName"
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
+                        Building Name
+                      </label>
+                      <Input
+                        id="buildingName"
+                        name="buildingName"
+                        value={formData.buildingName || ""}
+                        onChange={handleInputChange}
+                        placeholder="Enter building name"
+                      />
+                    </div>
+                    <div>
+                      <label
+                        htmlFor="inspectionPropertyType"
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
+                        Inspection Property Type
+                      </label>
+                      <Select
+                        value={formData.inspectionPropertyType ?? undefined}
+                        onValueChange={(value) =>
+                          handleSelectChange("inspectionPropertyType", value)
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select inspection type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {["residential", "commercial", "industrial"].map(
+                            (type) => (
+                              <SelectItem key={type} value={type}>
+                                {capitalizeFirstLetter(type)}
+                              </SelectItem>
+                            )
+                          )}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Inspection Dates */}
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <h4 className="text-sm font-medium text-gray-700 uppercase tracking-wider flex items-center gap-2 mb-4">
+                    <Clock className="h-4 w-4" />
+                    Inspection Dates
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label
+                        htmlFor="alternativeInspectionDate"
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
+                        Alternative Inspection Date
+                      </label>
+                      <input
+                        type="date"
+                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        value={
+                          formData.alternativeInspectionDate
+                            ? new Date(formData.alternativeInspectionDate)
+                                .toISOString()
+                                .split("T")[0]
+                            : ""
+                        }
+                        onChange={(e) =>
+                          handleDateChange(
+                            "alternativeInspectionDate",
+                            e.target.value
+                              ? new Date(e.target.value)
+                              : undefined
+                          )
                         }
                       />
-                    </SelectTrigger>
-                    <SelectContent className="max-h-[300px] overflow-y-auto">
-                      {cities.length > 0 ? (
-                        cities.map((city) => (
-                          <SelectItem
-                            key={`${city.name}-${city.stateCode}`}
-                            value={city.name}
-                          >
-                            {city.name}
-                          </SelectItem>
-                        ))
-                      ) : (
-                        <SelectItem value="-" disabled>
-                          No cities available
-                        </SelectItem>
-                      )}
-                    </SelectContent>
-                  </Select>
+                    </div>
+                  </div>
                 </div>
 
-                {/* Area Input */}
-                <div className="space-y-1">
-                  <label
-                    htmlFor="area"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    Area/Locality <span className="text-red-500">*</span>
-                  </label>
-                  <Input
-                    id="area"
-                    name="area"
-                    value={formData.area || ""}
-                    onChange={handleInputChange}
-                    placeholder="Enter area/locality"
-                    disabled={loading}
-                  />
+                {/* Special Requirements */}
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <h4 className="text-sm font-medium text-gray-700 uppercase tracking-wider flex items-center gap-2 mb-4">
+                    <FileText className="h-4 w-4" />
+                    Additional Information
+                  </h4>
+                  <div className="space-y-4">
+                    <div>
+                      <label
+                        htmlFor="mapLocation"
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
+                        Map Location
+                      </label>
+                      <Input
+                        id="mapLocation"
+                        name="mapLocation"
+                        value={formData.mapLocation || ""}
+                        onChange={handleInputChange}
+                        placeholder="Enter map location URL or coordinates"
+                      />
+                    </div>
+                  </div>
+                  {/* Status */}
+                  <div className="mt-4">
+                    <label
+                      htmlFor="status"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      Status
+                    </label>
+                    <Select
+                      value={formData.status || "new"}
+                      onValueChange={(value) =>
+                        handleSelectChange("status", value)
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {["new", "in-progress", "completed", "cancelled"].map(
+                          (status) => (
+                            <SelectItem key={status} value={status}>
+                              {capitalizeFirstLetter(status)}
+                            </SelectItem>
+                          )
+                        )}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <label
+                      htmlFor="specialRequirements"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      Special Requirements
+                    </label>
+                    <Textarea
+                      id="specialRequirements"
+                      name="specialRequirements"
+                      value={formData.specialRequirements || ""}
+                      onChange={handleInputChange}
+                      placeholder="Enter any special requirements"
+                      rows={3}
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label
-                    htmlFor="whatsApp"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    WhatsApp Number <span className="text-red-500">*</span>
-                  </label>
-                  <Input
-                    id="whatsApp"
-                    name="whatsApp"
-                    value={formData.whatsApp || ""}
-                    onChange={handleInputChange}
-                    placeholder="Enter WhatsApp number"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label
-                    htmlFor="propertyType"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    Property Type
-                  </label>
-                  <Select
-                    value={formData.propertyType}
-                    onValueChange={(value) =>
-                      handleSelectChange("propertyType", value)
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select property type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {["residential", "commercial"].map((type) => (
-                        <SelectItem key={type} value={type}>
-                          {capitalizeFirstLetter(type)}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <label
-                    htmlFor="buildingType"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    Building Type
-                  </label>
-                  <Select
-                    value={formData.buildingType}
-                    onValueChange={(value) =>
-                      handleSelectChange("buildingType", value)
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select building type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {["villa", "apartment", "shop", "office"].map((type) => (
-                        <SelectItem key={type} value={type}>
-                          {capitalizeFirstLetter(type)}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <div>
-                <label
-                  htmlFor="buildingName"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  Building Name
-                </label>
-                <Input
-                  id="buildingName"
-                  name="buildingName"
-                  value={formData.buildingName || ""}
-                  onChange={handleInputChange}
-                  placeholder="Enter building name"
-                />
-              </div>
-
-              <div>
-                <label
-                  htmlFor="inspectionPropertyType"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  Inspection Property Type
-                </label>
-                <Select
-                  value={formData.inspectionPropertyType ?? undefined}
-                  onValueChange={(value) =>
-                    handleSelectChange("inspectionPropertyType", value)
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select inspection type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {["residential", "commercial", "industrial"].map((type) => (
-                      <SelectItem key={type} value={type}>
-                        {capitalizeFirstLetter(type)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <label
-                  htmlFor="budgetRange"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  Budget Range
-                </label>
-                <Select
-                  value={formData.budgetRange}
-                  onValueChange={(value) =>
-                    handleSelectChange("budgetRange", value)
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select budget range" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {[
-                      "under-10k",
-                      "10k-50k",
-                      "50k-100k",
-                      "100k-500k",
-                      "above-500k",
-                    ].map((range) => (
-                      <SelectItem key={range} value={range}>
-                        {capitalizeFirstLetter(range.replace(/-/g, " "))}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <label
-                  htmlFor="projectUrgency"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  Project Urgency
-                </label>
-                <Select
-                  value={formData.projectUrgency}
-                  onValueChange={(value) =>
-                    handleSelectChange("projectUrgency", value)
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select urgency" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {["urgent", "normal", "flexible", "future-planning"].map(
-                      (urgency) => (
-                        <SelectItem key={urgency} value={urgency}>
-                          {capitalizeFirstLetter(urgency.replace(/-/g, " "))}
-                        </SelectItem>
-                      )
-                    )}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <label
-                  htmlFor="preferredInspectionDate"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  Preferred Inspection Date
-                </label>
-                <input
-                  type="date"
-                  value={
-                    formData.preferredInspectionDate
-                      ? new Date(formData.preferredInspectionDate)
-                          .toISOString()
-                          .split("T")[0]
-                      : ""
-                  }
-                  onChange={(e) =>
-                    handleDateChange(
-                      "preferredInspectionDate",
-                      e.target.value ? new Date(e.target.value) : undefined
-                    )
-                  }
-                />
-              </div>
-
-              <div>
-                <label
-                  htmlFor="alternativeInspectionDate"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  Alternative Inspection Date
-                </label>
-                <input
-                  type="date"
-                  value={
-                    formData.alternativeInspectionDate
-                      ? new Date(formData.alternativeInspectionDate)
-                          .toISOString()
-                          .split("T")[0]
-                      : ""
-                  }
-                  onChange={(e) =>
-                    handleDateChange(
-                      "alternativeInspectionDate",
-                      e.target.value ? new Date(e.target.value) : undefined
-                    )
-                  }
-                />
-              </div>
-
-              <div>
-                <label
-                  htmlFor="specialRequirements"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  Special Requirements
-                </label>
-                <Textarea
-                  id="specialRequirements"
-                  name="specialRequirements"
-                  value={formData.specialRequirements || ""}
-                  onChange={handleInputChange}
-                  placeholder="Enter any special requirements"
-                  rows={3}
-                />
               </div>
             </form>
           </div>
+
+          {/* Form Footer */}
           <div className="p-4 border-t bg-gray-50">
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={closeSidebar}>
+            <div className="flex justify-end gap-3">
+              <Button
+                variant="outline"
+                onClick={closeSidebar}
+                className="border-gray-300 hover:bg-gray-100"
+              >
                 Cancel
               </Button>
               <Button
                 onClick={handleSubmit}
                 disabled={loading}
-                className="flex items-center gap-2"
+                className="bg-gradient-to-r from-emerald-600 to-blue-600 hover:from-emerald-700 hover:to-blue-700 text-white shadow-lg"
               >
                 {loading ? (
                   <>
-                    <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
-                    <span>
-                      {currentInquiry ? "Updating..." : "Creating..."}
-                    </span>
+                    <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full mr-2"></div>
+                    {currentInquiry ? "Updating..." : "Creating..."}
                   </>
                 ) : (
                   <>
-                    <Save className="h-4 w-4" />
-                    <span>{currentInquiry ? "Update" : "Create"}</span>
+                    <Save className="h-4 w-4 mr-2" />
+                    {currentInquiry ? "Update Inquiry" : "Create Inquiry"}
                   </>
                 )}
               </Button>
@@ -934,10 +1213,11 @@ const InquiryPage = () => {
       {/* Overlay for sidebar */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-30 z-40"
+          className="fixed inset-0 bg-black bg-opacity-30 z-40 backdrop-blur-sm"
           onClick={closeSidebar}
         />
       )}
+
       <DeleteConfirmation
         text={confirmText}
         onConfirm={onConfirmCallback ?? (() => {})}

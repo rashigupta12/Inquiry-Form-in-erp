@@ -40,59 +40,56 @@ function LoginForm() {
     },
   });
 
-// LoginForm.tsx (relevant changes only)
-async function onSubmit(data: z.infer<typeof LoginSchema>) {
-  if (isPending || isRedirecting) return;
+  async function onSubmit(data: z.infer<typeof LoginSchema>) {
+    if (isPending || isRedirecting) return;
 
-  setError(undefined);
-  setSuccess(undefined);
+    setError(undefined);
+    setSuccess(undefined);
 
-  try {
-    startTransition(async () => {
-      const result = await loginUser(data);
-      
-      if (result?.error) {
-        setError(result.error);
-        return;
-      }
-
-      if (result?.success) {
-        setSuccess(result.success);
+    try {
+      startTransition(async () => {
+        const result = await loginUser(data);
         
-        if (result.redirectTo) {
-          setIsRedirecting(true);
-          // Small delay to show success message
-          await new Promise(resolve => setTimeout(resolve, 500));
-          window.location.href = result.redirectTo;
+        if (result?.error) {
+          setError(result.error);
+          return;
         }
-      }
-    });
-  } catch (e) {
-    console.error("Login error:", e);
-    setError("Authentication failed. Please try again.");
+
+        if (result?.success) {
+          setSuccess(result.success);
+          
+          if (result.redirectTo) {
+            setIsRedirecting(true);
+            await new Promise(resolve => setTimeout(resolve, 500));
+            window.location.href = result.redirectTo;
+          }
+        }
+      });
+    } catch (e) {
+      console.error("Login error:", e);
+      setError("Authentication failed. Please try again.");
+    }
   }
-}
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-emerald-500 to-blue-500">
       <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-xl shadow-lg">
         {/* Logo Section */}
         <div className="flex flex-col items-center space-y-2">
           <Link href="/">
             <Image
+              src="/picture1.jpg"
               alt="logo"
-              src="/next.svg"
               height={100}
               width={100}
               className="shadow-md hover:shadow-xl transition-shadow duration-300 p-4"
             />
           </Link>
-          <h1 className="text-red-500 font-bold text-xl">The - Library</h1>
         </div>
 
         {/* Login Header */}
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900">Welcome Back</h1>
+          <h1 className="text-2xl font-bold text-gray-800">Welcome Back</h1>
           <p className="mt-2 text-sm text-gray-600">Please login to your account</p>
         </div>
 
@@ -109,7 +106,7 @@ async function onSubmit(data: z.infer<typeof LoginSchema>) {
                     <Input
                       {...field}
                       placeholder="john.snow@gmail.com"
-                      className="h-12 rounded-lg border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="h-12 rounded-lg border-gray-300 focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                       type="email"
                       disabled={isPending}
                     />
@@ -130,14 +127,14 @@ async function onSubmit(data: z.infer<typeof LoginSchema>) {
                       <Input
                         {...field}
                         placeholder="********"
-                        className="h-12 rounded-lg border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="h-12 rounded-lg border-gray-300 focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                         type={showPassword ? "text" : "password"}
                         disabled={isPending}
                       />
                     </FormControl>
                     <button
                       type="button"
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-emerald-600 transition-colors"
                       onClick={togglePasswordVisibility}
                     >
                       {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
@@ -152,7 +149,7 @@ async function onSubmit(data: z.infer<typeof LoginSchema>) {
               <label className="flex items-center">
                 <input
                   type="checkbox"
-                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  className="rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
                 />
                 <span className="ml-2 text-sm text-gray-600">Remember me</span>
               </label>
@@ -160,19 +157,19 @@ async function onSubmit(data: z.infer<typeof LoginSchema>) {
                 asChild
                 variant="link"
                 size="sm"
-                className="px-0 text-sm text-blue-600 hover:text-blue-800"
+                className="px-0 text-sm text-emerald-600 hover:text-emerald-800"
               >
                 <Link href="/auth/forgot-password">Forgot password?</Link>
               </Button>
             </div>
 
-            <FormError message={error} />
-            <FormSuccess message={success} />
+            <FormError message={error}  />
+            <FormSuccess message={success}  />
 
             <button
               type="submit"
               disabled={isPending}
-              className="w-full h-12 bg-[#1B2B65] text-white rounded-lg font-medium hover:bg-[#152451] transition-all duration-300 transform hover:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full h-12 bg-gradient-to-r from-emerald-500 to-blue-500 text-white rounded-lg font-medium hover:from-emerald-600 hover:to-blue-600 transition-all duration-300 transform hover:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isPending ? (
                 <span className="flex items-center justify-center">
@@ -190,10 +187,10 @@ async function onSubmit(data: z.infer<typeof LoginSchema>) {
             <div className="text-center">
               <Link 
                 href="/auth/register" 
-                className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
+                className="text-sm text-gray-600 hover:text-gray-800 transition-colors"
               >
                 Don&apos;t have an account? {" "}
-                <span className="text-blue-600 hover:text-blue-800 font-medium">
+                <span className="text-emerald-600 hover:text-emerald-800 font-medium">
                   Register Instead
                 </span>
               </Link>
