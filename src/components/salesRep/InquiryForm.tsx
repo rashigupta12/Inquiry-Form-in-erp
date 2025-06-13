@@ -285,7 +285,7 @@ const InquiryPage = () => {
     clearError();
 
     // Required field validation
-    if (!formData.name ) {
+    if (!formData.name) {
       confirm("Name is required");
       return;
     }
@@ -297,32 +297,8 @@ const InquiryPage = () => {
       confirm("Contact number is required");
       return;
     }
-    if (!formData.country) {
-      confirm("Country is required");
-      return;
-    }
-    if (!formData.state) {
-      confirm("State is required");
-      return;
-    }
-    if(!formData.preferredInspectionDate){
-      confirm("Preferred inspection date is required");
-      return;
-    }
-    if(!formData.budgetRange){
-      confirm("Budget range is required");
-      return;
-    }
     if (!formData.jobType) {
       confirm("Job type is required");
-      return;
-    }
-    if (!formData.city) {
-      confirm("City is required");
-      return;
-    }
-    if (!formData.area) {
-      confirm("Area is required");
       return;
     }
 
@@ -333,7 +309,7 @@ const InquiryPage = () => {
         await createInquiry(formData as Inquiry);
       }
       closeSidebar();
-      window.location.reload(); // Refresh the page to show updated inquiries
+      // window.location.reload(); // Refresh the page to show updated inquiries
     } catch (err) {
       console.error("Form submission error:", err);
     }
@@ -356,24 +332,43 @@ const InquiryPage = () => {
     setIsDeleteModalOpen(true);
   };
 
+  // const filteredInquiries = inquiries.filter(
+  //   (inquiry: Inquiry) =>
+  //     inquiry.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //     inquiry.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //     inquiry.ContactNumber.toLowerCase().includes(searchTerm.toLowerCase())
+  //     // inquiry.city?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //     // inquiry.area?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //     // inquiry.buildingName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //     // inquiry.specialRequirements
+  //     //   ?.toLowerCase()
+  //     //   .includes(searchTerm.toLowerCase()) ||
+  //     // inquiry.jobType.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //     // inquiry.budgetRange?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //     // inquiry.status.toLowerCase().includes(searchTerm.toLowerCase())
+  // );
+
+  // Replace the filteredInquiries function with this fixed version:
+
   const filteredInquiries = inquiries.filter(
     (inquiry: Inquiry) =>
-      inquiry.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      inquiry.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      inquiry.ContactNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      inquiry.city?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      inquiry.area?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      inquiry.buildingName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      inquiry.specialRequirements
-        ?.toLowerCase()
-        .includes(searchTerm.toLowerCase()) ||
-      inquiry.jobType.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      inquiry.budgetRange?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      inquiry.status.toLowerCase().includes(searchTerm.toLowerCase())
+      (inquiry.name?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+      (inquiry.email?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+      (inquiry.ContactNumber?.toLowerCase() || "").includes(
+        searchTerm.toLowerCase()
+      )
+    // You can also uncomment and fix these other fields if needed:
+    // (inquiry.city?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+    // (inquiry.area?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+    // (inquiry.buildingName?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+    // (inquiry.specialRequirements?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+    // (inquiry.jobType?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+    // (inquiry.budgetRange?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+    // (inquiry.status?.toLowerCase() || '').includes(searchTerm.toLowerCase())
   );
 
   const capitalizeFirstLetter = (str: string): string => {
-    if (!str) return "";
+    if (!str || typeof str !== "string") return "";
     return str.charAt(0).toUpperCase() + str.slice(1);
   };
 
@@ -549,7 +544,7 @@ const InquiryPage = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <Badge variant="secondary" className="text-xs">
                         {capitalizeFirstLetter(
-                          inquiry.jobType.replace(/-/g, " ")
+                          (inquiry.jobType || "").replace(/-/g, " ")
                         )}
                       </Badge>
                     </td>
@@ -561,15 +556,13 @@ const InquiryPage = () => {
                         </span>
                       </div>
                     </td>
+
                     <td className="px-6 py-4 hidden lg:table-cell">
                       <Badge
                         variant="outline"
                         className="text-xs bg-blue-50 text-blue-700"
                       >
-                        {/* {capitalizeFirstLetter(
-                          inquiry.budgetRange?.replace(/-/g, " ") || ""
-                        )} */}
-                        {inquiry.budgetRange}
+                        {inquiry.budgetRange || "Not specified"}
                       </Badge>
                     </td>
                     <td className="px-6 py-4 hidden sm:table-cell">
@@ -744,7 +737,7 @@ const InquiryPage = () => {
                         htmlFor="budgetRange"
                         className="block text-sm font-medium text-gray-700 mb-1"
                       >
-                        Budget Range<span className="text-red-500">*</span>
+                        Budget Range
                       </label>
                       <Select
                         value={formData.budgetRange || "under-10k"}
@@ -775,7 +768,7 @@ const InquiryPage = () => {
                         htmlFor="projectUrgency"
                         className="block text-sm font-medium text-gray-700 mb-1"
                       >
-                        Project Urgency<span className="text-red-500">*</span>
+                        Project Urgency
                       </label>
                       <Select
                         value={formData.projectUrgency ?? "urgent"}
@@ -808,7 +801,6 @@ const InquiryPage = () => {
                         className="block text-sm font-medium text-gray-700 mb-1"
                       >
                         Preferred Inspection Date
-                        <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="date"
@@ -837,7 +829,7 @@ const InquiryPage = () => {
                 <div className="bg-gray-50 p-2 rounded-lg">
                   <h4 className="text-sm font-medium text-gray-700 uppercase tracking-wider flex items-center gap-2 mb-2">
                     <MapPin className="h-4 w-4" />
-                    Location Information <span className="text-red-500">*</span>
+                    Location Information
                   </h4>
                   <div className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -846,7 +838,7 @@ const InquiryPage = () => {
                           htmlFor="country"
                           className="block text-sm font-medium text-gray-700 mb-1"
                         >
-                          Country <span className="text-red-500">*</span>
+                          Country
                         </label>
                         <Select
                           value={formData.country || ""}
@@ -882,7 +874,7 @@ const InquiryPage = () => {
                           htmlFor="state"
                           className="block text-sm font-medium text-gray-700 mb-1"
                         >
-                          State/Province <span className="text-red-500">*</span>
+                          State/Province
                         </label>
                         <Select
                           value={formData.state || ""}
@@ -929,7 +921,7 @@ const InquiryPage = () => {
                           htmlFor="city"
                           className="block text-sm font-medium text-gray-700 mb-1"
                         >
-                          City <span className="text-red-500">*</span>
+                          City
                         </label>
                         <Select
                           value={formData.city || ""}
@@ -976,7 +968,7 @@ const InquiryPage = () => {
                         htmlFor="area"
                         className="block text-sm font-medium text-gray-700 mb-1"
                       >
-                        Area/Locality <span className="text-red-500">*</span>
+                        Area/Locality
                       </label>
                       <Input
                         id="area"
@@ -1136,7 +1128,7 @@ const InquiryPage = () => {
                     <FileText className="h-4 w-4" />
                     Additional Information
                   </h4>
-                  <div className="space-y-4">
+                  {/* <div className="space-y-4">
                     <div>
                       <label
                         htmlFor="mapLocation"
@@ -1152,7 +1144,7 @@ const InquiryPage = () => {
                         placeholder="Enter map location URL or coordinates"
                       />
                     </div>
-                  </div>
+                  </div> */}
                   {/* Status */}
                   <div className="mt-4">
                     <label

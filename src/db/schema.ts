@@ -152,7 +152,7 @@ export const InquiriesTable = pgTable(
     country: text("country"),
     state: text("state"),
     city: text("city"),
-    area: text("area").notNull(),
+    area: text("area"),
     propertyType: PropertyType("property_type"),
     buildingType: BuildingType("building_type"),
     buildingName: text("building_name"),
@@ -160,7 +160,7 @@ export const InquiriesTable = pgTable(
     
     // Inspection Details
     inspectionPropertyType: InspectionPropertyType("inspection_property_type"),
-    budgetRange: BudgetRange("budget_range").notNull(),
+    budgetRange: BudgetRange("budget_range"),
     
     // Timeline and Requirements
     projectUrgency: ProjectUrgency("project_urgency"),

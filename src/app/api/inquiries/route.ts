@@ -127,7 +127,7 @@ export async function POST(request: Request) {
       // Validate required fields
       if (!inquiry.createdBy || !inquiry.name ||inquiry.contactNumber || !inquiry.jobType) {
         return NextResponse.json(
-          { message: "Missing required fields: createdBy, whatsApp, jobType" },
+          { message: "Missing required fields: createdBy, name, contactNumber, jobType" },
           { status: 400 }
         );
       }
