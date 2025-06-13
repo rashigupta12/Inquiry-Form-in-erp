@@ -285,8 +285,32 @@ const InquiryPage = () => {
     clearError();
 
     // Required field validation
-    if (!formData.name && !formData.ContactNumber) {
+    if (!formData.name ) {
       confirm("Name is required");
+      return;
+    }
+    if (!formData.email) {
+      confirm("Email is required");
+      return;
+    }
+    if (!formData.ContactNumber) {
+      confirm("Contact number is required");
+      return;
+    }
+    if (!formData.country) {
+      confirm("Country is required");
+      return;
+    }
+    if (!formData.state) {
+      confirm("State is required");
+      return;
+    }
+    if(!formData.preferredInspectionDate){
+      confirm("Preferred inspection date is required");
+      return;
+    }
+    if(!formData.budgetRange){
+      confirm("Budget range is required");
       return;
     }
     if (!formData.jobType) {
@@ -503,14 +527,13 @@ const InquiryPage = () => {
                       {index + 1}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="space-y-1">
+                      <div className="space-y-1 p-1">
                         <div className="flex items-center gap-2">
                           <span className="text-sm text-gray-600">
                             {inquiry.name}
                           </span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <Phone className="h-4 w-4 text-gray-400" />
                           <span className="text-sm text-gray-600">
                             {inquiry.ContactNumber}
                           </span>
