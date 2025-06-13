@@ -2,6 +2,7 @@
 'use client';
 import { CheckCircle, Clock, Hammer, Mail, MapPin, Menu, Paintbrush, Phone, Settings, Shield, Star, Users, Wrench, X, Zap } from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 
 const HomePage = () => {
@@ -153,12 +154,19 @@ const HomePage = () => {
               <a href="#testimonials" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">Testimonials</a>
               <a href="#about" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">About</a>
               <a href="#contact" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">Contact</a>
-              <ContactButton 
+              {/* <ContactButton 
                 onClick={handleCallClick}
                 className="text-sm"
               >
                 Call Now
-              </ContactButton>
+              </ContactButton> */}
+              <Link href={"/auth/login"}>
+              <button 
+                onClick={handleCallClick}
+                className="px-6 py-2 bg-gradient-to-r from-emerald-500 to-blue-500 text-white rounded-full font-semibold hover:opacity-90 transition-opacity">
+                  Login Button
+                </button>
+                </Link>
             </div>
 
             <button 
