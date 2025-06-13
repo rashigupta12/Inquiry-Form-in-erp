@@ -136,7 +136,7 @@ const HomePage = () => {
             <div className="flex items-center space-x-2">
               <div className=" bg-gradient-to-r from-emerald-500 to-blue-500 rounded-lg flex items-center justify-center">
                 <Image 
-                  src="/picture1.jpg"
+                  src="https://gojf7j54p4.ufs.sh/f/CcC11ljtXd0cVJkIxkqEgHb468cUmrZkfjiutLze1KlGD7xp"
                   alt="EITS Logo"
                   width={96}
                   height={96}

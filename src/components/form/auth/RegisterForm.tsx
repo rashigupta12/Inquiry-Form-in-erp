@@ -83,7 +83,7 @@ const RegisterForm = ({ text, role }: RegisterFormProps) => {
         <CardHeader>
           <div className="text-center">
             <Image
-              src="/Picture1.jpg"
+              src="https://gojf7j54p4.ufs.sh/f/CcC11ljtXd0cVJkIxkqEgHb468cUmrZkfjiutLze1KlGD7xp"
               alt="Logo"
               width={100}
               height={100}

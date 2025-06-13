@@ -71,7 +71,7 @@ export default function AdminDashboard() {
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2">
                 <div className="bg-gradient-to-r from-emerald-500 to-blue-500 rounded-lg flex items-center justify-center">
-                  <Image src="/Picture1.jpg" alt="Logo" width={70} height={70} className="object-fit" />
+                  <Image src="https://gojf7j54p4.ufs.sh/f/CcC11ljtXd0cVJkIxkqEgHb468cUmrZkfjiutLze1KlGD7xp" alt="Logo" width={70} height={70} className="object-fit" />
                 </div>
               </div>
             </div>

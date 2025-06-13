@@ -78,7 +78,7 @@ function LoginForm() {
         <div className="flex flex-col items-center space-y-2">
           <Link href="/">
             <Image
-              src="/picture1.jpg"
+              src="https://gojf7j54p4.ufs.sh/f/CcC11ljtXd0cVJkIxkqEgHb468cUmrZkfjiutLze1KlGD7xp"
               alt="logo"
               height={100}
               width={100}
