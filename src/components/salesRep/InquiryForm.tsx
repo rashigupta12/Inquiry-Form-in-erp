@@ -309,7 +309,7 @@ const InquiryPage = () => {
         await createInquiry(formData as Inquiry);
       }
       closeSidebar();
-      // window.location.reload(); // Refresh the page to show updated inquiries
+      window.location.reload(); // Refresh the page to show updated inquiries
     } catch (err) {
       console.error("Form submission error:", err);
     }
