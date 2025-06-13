@@ -1,337 +1,514 @@
+/*eslint-disable react/no-unescaped-entities */
 'use client';
-import {
-  ArrowRight,
-  Award,
-  Building,
-  CheckCircle,
-  LogIn,
-  Mail,
-  Menu,
-  Phone,
-  Settings,
-  Shield,
-  TrendingUp,
-  Users,
-  X,
-  Zap
-} from 'lucide-react';
+import { CheckCircle, Clock, Hammer, Mail, MapPin, Menu, Paintbrush, Phone, Settings, Shield, Star, Users, Wrench, X, Zap } from 'lucide-react';
 import Image from 'next/image';
-import { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
-export default function EITSERPHomepage() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+const HomePage = () => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [activeService, setActiveService] = useState(0);
+  const [isScrolled, setIsScrolled] = useState(false);
+  console.log(activeService);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const services = [
     {
-      icon: Zap,
-      title: "Electrical Systems",
-      description: "Complete electrical installation and maintenance services for residential and commercial projects."
+      id: 'joineries-wood-work',
+      title: 'Joineries & Woodwork',
+      icon: <Hammer className="w-8 h-8" />,
+      description: 'Custom carpentry, furniture, doors, windows, and premium woodwork solutions',
+      features: ['Custom Furniture', 'Door & Window Installation', 'Kitchen Cabinets', 'Flooring Solutions'],
+      color: 'from-amber-500 to-orange-600'
     },
     {
-      icon: Building,
-      title: "MEP Solutions", 
-      description: "Mechanical, Electrical & Plumbing solutions designed for modern infrastructure needs."
+      id: 'painting-decorating',
+      title: 'Painting & Decorating',
+      icon: <Paintbrush className="w-8 h-8" />,
+      description: 'Professional interior and exterior painting with premium finishes',
+      features: ['Interior Painting', 'Exterior Coating', 'Decorative Finishes', 'Wall Treatments'],
+      color: 'from-purple-500 to-pink-600'
     },
     {
-      icon: Settings,
-      title: "Maintenance Services",
-      description: "Ongoing maintenance and support services to keep your systems running efficiently."
+      id: 'electrical',
+      title: 'Electrical Services',
+      icon: <Zap className="w-8 h-8" />,
+      description: 'Complete electrical installations, repairs, and maintenance solutions',
+      features: ['Wiring & Rewiring', 'Lighting Solutions', 'Panel Upgrades', 'Safety Inspections'],
+      color: 'from-yellow-500 to-orange-500'
     },
     {
-      icon: Shield,
-      title: "Safety & Compliance",
-      description: "Ensuring all installations meet safety standards and regulatory compliance requirements."
+      id: 'sanitary-plumbing',
+      title: 'Plumbing & Sanitary',
+      icon: <Wrench className="w-8 h-8" />,
+      description: 'Expert plumbing, toilet, and washroom installation and maintenance',
+      features: ['Bathroom Fitting', 'Pipe Installation', 'Leak Repairs', 'Water Systems'],
+      color: 'from-blue-500 to-cyan-600'
+    },
+    {
+      id: 'equipment-maintenance',
+      title: 'Equipment Installation & Maintenance',
+      icon: <Settings className="w-8 h-8" />,
+      description: 'Professional equipment setup, installation, and ongoing maintenance',
+      features: ['HVAC Systems', 'Appliance Setup', 'Preventive Maintenance', 'Technical Support'],
+      color: 'from-green-500 to-teal-600'
     }
   ];
 
-  const features = [
+  const stats = [
+    { number: '500+', label: 'Projects Completed' },
+    { number: '98%', label: 'Customer Satisfaction' },
+    { number: '24/7', label: 'Support Available' },
+    { number: '10+', label: 'Years Experience' }
+  ];
+
+  const testimonials = [
     {
-      icon: Users,
-      title: "Complete Business Management",
-      description: "From lead generation to project completion - manage your entire business cycle"
+      quote: "EITS transformed our kitchen with beautiful custom cabinets. Their attention to detail was impressive!",
+      author: "Sarah Johnson",
+      rating: 5
     },
     {
-      icon: TrendingUp,
-      title: "Real-time Analytics",
-      description: "Track performance, monitor progress, and make data-driven decisions"
+      quote: "The electrical team was professional and efficient. They fixed all our wiring issues in one visit.",
+      author: "Michael Chen",
+      rating: 5
     },
     {
-      icon: CheckCircle,
-      title: "Quality Assurance",
-      description: "Built-in quality control processes ensure consistent service delivery"
-    },
-    {
-      icon: Award,
-      title: "Professional Excellence",
-      description: "Streamlined workflows designed for technical service excellence"
+      quote: "Our house painting was done on time and exactly as promised. Would definitely hire again.",
+      author: "David Wilson",
+      rating: 4
     }
   ];
 
-  const roles = [
-    { name: "Sales Representative", description: "Lead generation & customer relations", users: "12 users" },
-    { name: "Sales Coordinator", description: "Enquiry processing & coordination", users: "3 users" },
-    { name: "Technical Inspector", description: "Site assessment & technical analysis", users: "8 users" },
-    { name: "Project Manager", description: "End-to-end project execution", users: "5 users" },
-    { name: "Sales Manager", description: "Sales oversight & quotation approval", users: "2 users" },
-    { name: "Operations Manager", description: "Overall operational management", users: "1 user" }
-  ];
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveService((prev) => (prev + 1) % services.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, []);
+
+  type ContactButtonProps = {
+    variant?: 'primary' | 'secondary';
+    children: React.ReactNode;
+    onClick?: () => void;
+    className?: string;
+  };
+
+  const ContactButton: React.FC<ContactButtonProps> = ({ variant = 'primary', children, onClick, className = '' }) => (
+    <button
+      onClick={onClick}
+      className={`
+        px-6 py-3 md:px-8 md:py-4 rounded-full font-semibold text-lg transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg
+        ${variant === 'primary' 
+          ? 'bg-gradient-to-r from-emerald-500 to-blue-500 text-white hover:shadow-blue-500/25' 
+          : 'bg-white text-gray-800 hover:bg-gray-50 border-2 border-gray-200 hover:border-gray-300'
+        }
+        ${className}
+      `}
+    >
+      {children}
+    </button>
+  );
+
+  const handleContactClick = () => {
+    const el = document.getElementById('contact-section');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const handleCallClick = () => {
+    window.location.href = 'tel:+1234567890';
+  };
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Header */}
-      <header className="bg-gradient-to-r from-emerald-500 to-blue-500 text-white">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+      {/* Navigation */}
+      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-white shadow-md py-2' : 'bg-white/90 backdrop-blur-md py-4'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <div className="flex items-center space-x-4">
-              {/* Logo Space */}
-              <div className="w-12 h-12 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
-                <Image src="/picture1.jpg" alt="EITS Logo" className=" object-cover" width={96} height={96} />
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center space-x-2">
+              <div className=" bg-gradient-to-r from-emerald-500 to-blue-500 rounded-lg flex items-center justify-center">
+                <Image 
+                  src="/picture1.jpg"
+                  alt="EITS Logo"
+                  width={96}
+                  height={96}
+                  className="rounded-lg"
+                />
               </div>
-              <div>
-                <h1 className="text-2xl font-bold">EITS</h1>
-                <p className="text-emerald-100 text-sm">Engineering & Technical Solutions</p>
-              </div>
+              <span className="text-2xl font-bold bg-gradient-to-r from-emerald-500 to-blue-500 bg-clip-text text-transparent">
+                EITS Services
+              </span>
             </div>
             
-            {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center space-x-8">
-              <a href="#services" className="hover:text-emerald-200 transition-colors">Services</a>
-              <a href="#about" className="hover:text-emerald-200 transition-colors">About</a>
-              <a href="#contact" className="hover:text-emerald-200 transition-colors">Contact</a>
-              <button className="flex items-center space-x-2 bg-white bg-opacity-20 px-4 py-2 rounded-lg hover:bg-opacity-30 transition-colors">
-                <LogIn className="w-4 h-4" />
-                <span>Staff Login</span>
-              </button>
-            </nav>
+            <div className="hidden md:flex items-center space-x-8">
+              <a href="#services" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">Services</a>
+              <a href="#testimonials" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">Testimonials</a>
+              <a href="#about" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">About</a>
+              <a href="#contact" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">Contact</a>
+              <ContactButton 
+                onClick={handleCallClick}
+                className="text-sm"
+              >
+                Call Now
+              </ContactButton>
+            </div>
 
-            {/* Mobile menu button */}
             <button 
-              className="md:hidden p-2 rounded-lg hover:bg-white hover:bg-opacity-20"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              aria-label="Toggle menu"
             >
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
           </div>
-
-          {/* Mobile Navigation */}
-          {mobileMenuOpen && (
-            <div className="md:hidden py-4 border-t border-white border-opacity-20">
-              <div className="flex flex-col space-y-4">
-                <a href="#services" className="hover:text-emerald-200 transition-colors">Services</a>
-                <a href="#about" className="hover:text-emerald-200 transition-colors">About</a>
-                <a href="#contact" className="hover:text-emerald-200 transition-colors">Contact</a>
-                <button className="flex items-center space-x-2 bg-white bg-opacity-20 px-4 py-2 rounded-lg hover:bg-opacity-30 transition-colors w-fit">
-                  <LogIn className="w-4 h-4" />
-                  <span>Staff Login</span>
-                </button>
-              </div>
-            </div>
-          )}
         </div>
-      </header>
+
+        {/* Mobile Menu */}
+        {isMenuOpen && (
+          <div className="md:hidden bg-white border-t shadow-lg">
+            <div className="px-4 py-3 space-y-3">
+              <a href="#services" className="block py-3 px-4 rounded-lg hover:bg-gray-50 text-gray-700 font-medium">Services</a>
+              <a href="#testimonials" className="block py-3 px-4 rounded-lg hover:bg-gray-50 text-gray-700 font-medium">Testimonials</a>
+              <a href="#about" className="block py-3 px-4 rounded-lg hover:bg-gray-50 text-gray-700 font-medium">About</a>
+              <a href="#contact" className="block py-3 px-4 rounded-lg hover:bg-gray-50 text-gray-700 font-medium">Contact</a>
+              <button 
+                onClick={handleCallClick}
+                className="w-full text-left py-3 px-4 rounded-lg bg-gradient-to-r from-emerald-500 to-blue-500 text-white font-semibold hover:opacity-90 transition-opacity"
+              >
+                Call Now
+              </button>
+            </div>
+          </div>
+        )}
+      </nav>
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-gray-50 to-white py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
-              Engineering Excellence in
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-blue-500"> Every Project</span>
+      <section className="pt-32 pb-16 px-4 sm:pt-40 sm:pb-24">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
+              <span className="bg-gradient-to-r from-emerald-500 via-blue-500 to-cyan-600 bg-clip-text text-transparent">
+                Professional
+              </span>
+              <br />
+              <span className="text-gray-800">Home Solutions</span>
             </h1>
-            <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-              From initial consultation to project completion, we deliver comprehensive MEP solutions 
-              that power modern infrastructure with precision and reliability.
+            <p className="text-lg md:text-xl lg:text-2xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
+              From woodwork to electrical, plumbing to painting - we're your trusted partner for all home improvement needs
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button className="bg-gradient-to-r from-emerald-500 to-blue-500 text-white px-8 py-4 rounded-lg font-semibold hover:from-emerald-600 hover:to-blue-600 transition-all transform hover:scale-105 shadow-lg">
-                Get Quote Today
-              </button>
-              <button className="border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-lg font-semibold hover:border-emerald-500 hover:text-emerald-600 transition-colors">
-                View Our Projects
-              </button>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <ContactButton onClick={handleContactClick}>
+                Get Free Quote
+              </ContactButton>
+              <ContactButton variant="secondary" onClick={handleCallClick}> Call Now
+              </ContactButton>
             </div>
+          </div>
+
+          {/* Stats */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 sm:gap-8 mb-16 px-4">
+            {stats.map((stat, index) => (
+              <div key={index} className="text-center bg-white p-4 sm:p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+                <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-2">{stat.number}</div>
+                <div className="text-gray-600 text-sm sm:text-base">{stat.label}</div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
       {/* Services Section */}
-      <section id="services" className="py-20 bg-white">
+      <section id="services" className="py-16 sm:py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Our Services</h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Comprehensive engineering solutions tailored to meet your project requirements
+          <div className="text-center mb-12 sm:mb-16">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-800 mb-4">Our Services</h2>
+            <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto">
+              Comprehensive home solutions delivered by skilled professionals
             </p>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {services.map((service, index) => (
-              <div key={index} className="text-center p-6 rounded-xl hover:shadow-lg transition-all duration-300 hover:transform hover:scale-105 border border-gray-100">
-                <div className="w-16 h-16 bg-gradient-to-r from-emerald-500 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <service.icon className="w-8 h-8 text-white" />
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-3">{service.title}</h3>
-                <p className="text-gray-600">{service.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
-      {/* ERP System Features */}
-      <section className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Powered by Advanced ERP</h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Our integrated business management system ensures seamless operations from lead to completion
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {features.map((feature, index) => (
-              <div key={index} className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow">
-                <div className="w-12 h-12 bg-gradient-to-r from-emerald-500 to-blue-500 rounded-lg flex items-center justify-center mb-4">
-                  <feature.icon className="w-6 h-6 text-white" />
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+            {services.map((service) => (
+              <div 
+                key={service.id}
+                className="group bg-white rounded-xl sm:rounded-2xl p-6 sm:p-8 shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100 hover:border-transparent"
+              >
+                <div className={`w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-gradient-to-r ${service.color} flex items-center justify-center text-white mb-4 sm:mb-6 group-hover:scale-110 transition-transform duration-300`}>
+                  {service.icon}
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-3">{feature.title}</h3>
-                <p className="text-gray-600">{feature.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Business Process Flow */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Our Process</h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              A streamlined approach that ensures quality delivery at every stage
-            </p>
-          </div>
-          
-          <div className="flex flex-col md:flex-row items-center justify-between space-y-8 md:space-y-0">
-            {[
-              { step: "1", title: "Lead Generation", desc: "Initial contact & requirements" },
-              { step: "2", title: "Site Assessment", desc: "Technical evaluation & analysis" },
-              { step: "3", title: "Quotation", desc: "Detailed proposal & pricing" },
-              { step: "4", title: "Project Execution", desc: "Implementation & delivery" },
-              { step: "5", title: "Completion", desc: "Handover & ongoing support" }
-            ].map((process, index) => (
-              <div key={index} className="flex flex-col items-center text-center">
-                <div className="w-16 h-16 bg-gradient-to-r from-emerald-500 to-blue-500 rounded-full flex items-center justify-center text-white font-bold text-xl mb-4">
-                  {process.step}
-                </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">{process.title}</h3>
-                <p className="text-gray-600 text-sm">{process.desc}</p>
-                {index < 4 && (
-                  <ArrowRight className="w-6 h-6 text-emerald-500 mt-4 md:hidden" />
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Staff Access Section */}
-      <section className="py-20 bg-gradient-to-r from-emerald-500 to-blue-500">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Staff Access</h2>
-            <p className="text-xl text-emerald-100 max-w-2xl mx-auto">
-              Role-based access to our comprehensive ERP system
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {roles.map((role, index) => (
-              <div key={index} className="bg-white bg-opacity-10 backdrop-blur-sm rounded-lg p-6 hover:bg-opacity-20 transition-all cursor-pointer">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-lg font-semibold text-white">{role.name}</h3>
-                  <span className="text-sm text-emerald-100">{role.users}</span>
-                </div>
-                <p className="text-emerald-100 text-sm mb-4">{role.description}</p>
-                <button className="flex items-center space-x-2 text-white hover:text-emerald-200 transition-colors">
-                  <span className="text-sm">Access Dashboard</span>
-                  <ArrowRight className="w-4 h-4" />
+                <h3 className="text-xl sm:text-2xl font-bold text-gray-800 mb-3 sm:mb-4">{service.title}</h3>
+                <p className="text-gray-600 mb-4 sm:mb-6 text-sm sm:text-base">{service.description}</p>
+                <ul className="space-y-2 mb-4 sm:mb-6">
+                  {service.features.map((feature, idx) => (
+                    <li key={idx} className="flex items-center text-gray-700 text-sm sm:text-base">
+                      <CheckCircle className="w-4 h-4 text-green-500 mr-2 flex-shrink-0" />
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+                <button 
+                  onClick={handleContactClick}
+                  className="w-full py-2 sm:py-3 bg-gradient-to-r from-gray-800 to-gray-900 text-white rounded-lg hover:from-gray-900 hover:to-black transition-all duration-300 font-medium sm:font-semibold text-sm sm:text-base"
+                >
+                  Get Quote
                 </button>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials Section */}
+      <section id="testimonials" className="py-16 sm:py-20 bg-gradient-to-br from-blue-50 to-purple-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12 sm:mb-16">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-800 mb-4">What Our Clients Say</h2>
+            <p className="text-lg sm:text-xl text-gray-600">Trusted by homeowners across the region</p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+            {testimonials.map((testimonial, index) => (
+              <div key={index} className="bg-white p-6 sm:p-8 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+                <div className="flex mb-4">
+                  {[...Array(5)].map((_, i) => (
+                    <Star 
+                      key={i} 
+                      className={`w-5 h-5 ${i < testimonial.rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`}
+                    />
+                  ))}
+                </div>
+                <blockquote className="text-gray-700 mb-6 italic">"{testimonial.quote}"</blockquote>
+                <div className="text-gray-800 font-medium">— {testimonial.author}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Why Choose Us */}
+      <section id="about" className="py-16 sm:py-20 bg-gradient-to-br from-blue-50 to-purple-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12 sm:mb-16">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-800 mb-4">Why Choose EITS?</h2>
+            <p className="text-lg sm:text-xl text-gray-600">Your satisfaction is our commitment</p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6 sm:gap-8">
+            <div className="bg-white text-center p-6 sm:p-8 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-r from-emerald-500 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
+                <Shield className="w-8 sm:w-10 h-8 sm:h-10 text-white" />
+              </div>
+              <h3 className="text-xl sm:text-2xl font-bold text-gray-800 mb-3 sm:mb-4">Quality Assured</h3>
+              <p className="text-gray-600 text-sm sm:text-base">Premium materials and skilled craftsmanship guarantee lasting results</p>
+            </div>
+            <div className="bg-white text-center p-6 sm:p-8 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
+                <Clock className="w-8 sm:w-10 h-8 sm:h-10 text-white" />
+              </div>
+              <h3 className="text-xl sm:text-2xl font-bold text-gray-800 mb-3 sm:mb-4">On-Time Delivery</h3>
+              <p className="text-gray-600 text-sm sm:text-base">We respect your time and deliver projects as promised</p>
+            </div>
+            <div className="bg-white text-center p-6 sm:p-8 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-r from-green-500 to-teal-500 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
+                <Users className="w-8 sm:w-10 h-8 sm:h-10 text-white" />
+              </div>
+              <h3 className="text-xl sm:text-2xl font-bold text-gray-800 mb-3 sm:mb-4">Expert Team</h3>
+              <p className="text-gray-600 text-sm sm:text-base">Certified professionals with years of experience in their fields</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Banner */}
+      <section className="py-12 sm:py-16 bg-gradient-to-r from-blue-600 to-purple-600">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="max-w-4xl mx-auto">
+            <h3 className="text-2xl sm:text-3xl font-bold text-white mb-4">Need Expert Help With Your Home Project?</h3>
+            <p className="text-blue-100 mb-6 text-lg">Our team is ready to assist you with any home improvement needs.</p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <ContactButton onClick={handleContactClick}>
+                Request Free Consultation
+              </ContactButton>
+              <ContactButton variant="secondary" className="bg-white/10 border-white/20 text-white hover:bg-white/20">
+                <Phone className="mr-2 w-5 h-5" /> Call Now
+              </ContactButton>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Contact Section */}
-      <section id="contact" className="py-20 bg-gray-900 text-white">
+      <section id="contact-section" className="py-16 sm:py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-            <div>
-              <h2 className="text-3xl font-bold mb-6">Get In Touch</h2>
-              <p className="text-gray-300 mb-8">
-                Ready to start your next project? Contact us today for a consultation.
-              </p>
-              
-              <div className="space-y-4">
-                <div className="flex items-center space-x-4">
-                  <Phone className="w-6 h-6 text-emerald-400" />
-                  <span>+91 (XXX) XXX-XXXX</span>
-                </div>
-                <div className="flex items-center space-x-4">
-                  <Mail className="w-6 h-6 text-emerald-400" />
-                  <span>info@eits.com</span>
-                </div>
-                <div className="flex items-center space-x-4">
-                  <Building className="w-6 h-6 text-emerald-400" />
-                  <span>Your Business Address Here</span>
-                </div>
-              </div>
-            </div>
-            
-            <div className="bg-gray-800 p-8 rounded-lg">
-              <h3 className="text-xl font-semibold mb-6">Send us a message</h3>
+          <div className="text-center mb-12 sm:mb-16">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-800 mb-4">Contact Us</h2>
+            <p className="text-lg sm:text-xl text-gray-600">Get in touch for a free quote or consultation</p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8 sm:gap-12">
+            <div className="bg-gradient-to-br from-blue-50 to-purple-50 p-6 sm:p-8 rounded-xl shadow-sm">
+              <h3 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4">Send us a message</h3>
               <form className="space-y-4">
-                <input 
-                  type="text" 
-                  placeholder="Your Name" 
-                  className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg focus:border-emerald-500 focus:outline-none"
-                />
-                <input 
-                  type="email" 
-                  placeholder="Your Email" 
-                  className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg focus:border-emerald-500 focus:outline-none"
-                />
-                <textarea 
-                  placeholder="Your Message" 
-                  rows={4}
-                  className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg focus:border-emerald-500 focus:outline-none"
-                ></textarea>
-                <button className="w-full bg-gradient-to-r from-emerald-500 to-blue-500 text-white py-3 rounded-lg font-semibold hover:from-emerald-600 hover:to-blue-600 transition-colors">
+                <div>
+                  <label htmlFor="name" className="block text-gray-700 mb-2">Name</label>
+                  <input 
+                    type="text" 
+                    id="name" 
+                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Your name"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="email" className="block text-gray-700 mb-2">Email</label>
+                  <input 
+                    type="email" 
+                    id="email" 
+                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Your email"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="phone" className="block text-gray-700 mb-2">Phone (optional)</label>
+                  <input 
+                    type="tel" 
+                    id="phone" 
+                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Your phone number"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="message" className="block text-gray-700 mb-2">Message</label>
+                  <textarea 
+                    id="message" 
+                    rows={4}
+                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Tell us about your project"
+                  ></textarea>
+                </div>
+                <button 
+                  type="submit"
+                  className="w-full py-3 bg-gradient-to-r from-emerald-500 to-blue-500 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-300 font-semibold shadow-md"
+                >
                   Send Message
                 </button>
               </form>
+            </div>
+
+            <div className="space-y-6 sm:space-y-8">
+              <div className="bg-gradient-to-br from-blue-50 to-purple-50 p-6 sm:p-8 rounded-xl shadow-sm">
+                <h3 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4">Contact Information</h3>
+                <div className="space-y-4">
+                  <div className="flex items-start">
+                    <div className="bg-blue-100 p-2 rounded-lg mr-4">
+                      <Phone className="w-5 h-5 text-blue-600" />
+                    </div>
+                    <div>
+                      <h4 className="font-medium text-gray-700">Phone</h4>
+                      <a href="tel:+1234567890" className="text-blue-600 hover:underline">+1 (234) 567-890</a>
+                    </div>
+                  </div>
+                  <div className="flex items-start">
+                    <div className="bg-blue-100 p-2 rounded-lg mr-4">
+                      <Mail className="w-5 h-5 text-blue-600" />
+                    </div>
+                    <div>
+                      <h4 className="font-medium text-gray-700">Email</h4>
+                      <a href="mailto:info@eitsservices.com" className="text-blue-600 hover:underline">info@eitsservices.com</a>
+                    </div>
+                  </div>
+                  <div className="flex items-start">
+                    <div className="bg-blue-100 p-2 rounded-lg mr-4">
+                      <MapPin className="w-5 h-5 text-blue-600" />
+                    </div>
+                    <div>
+                      <h4 className="font-medium text-gray-700">Service Area</h4>
+                      <p className="text-gray-600">Your City & Surrounding Areas</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-gradient-to-br from-blue-50 to-purple-50 p-6 sm:p-8 rounded-xl shadow-sm">
+                <h3 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4">Business Hours</h3>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-gray-700">Monday - Friday</span>
+                    <span className="text-gray-600 font-medium">8:00 AM - 6:00 PM</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-700">Saturday</span>
+                    <span className="text-gray-600 font-medium">9:00 AM - 4:00 PM</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-700">Sunday</span>
+                    <span className="text-gray-600 font-medium">Emergency Only</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-800 text-white py-8">
+      <footer className="bg-gray-900 text-white py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="flex items-center space-x-4 mb-4 md:mb-0">
-              <div className="w-8 h-8 bg-gradient-to-r from-emerald-500 to-blue-500 rounded-lg flex items-center justify-center">
-                <span className="text-lg font-bold">E</span>
+          <div className="grid md:grid-cols-4 gap-8 mb-8">
+            <div>
+              <div className="flex items-center space-x-2 mb-4">
+                <div className="w-10 h-10 bg-gradient-to-r from-emerald-500 to-blue-500 rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-xl">E</span>
+                </div>
+                <span className="text-2xl font-bold">EITS Services</span>
               </div>
-              <span className="text-lg font-semibold">EITS</span>
+              <p className="text-gray-400 text-sm sm:text-base">
+                Professional home improvement services with quality craftsmanship and customer satisfaction.
+              </p>
             </div>
-            <p className="text-gray-400 text-sm">
-              © 2025 EITS. All rights reserved. Engineering excellence in every project.
-            </p>
+            <div>
+              <h4 className="text-lg font-semibold mb-4">Services</h4>
+              <ul className="space-y-2">
+                {services.slice(0, 3).map((service) => (
+                  <li key={service.id}>
+                    <a href={`#${service.id}`} className="text-gray-400 hover:text-white transition-colors">
+                      {service.title}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <h4 className="text-lg font-semibold mb-4">Company</h4>
+              <ul className="space-y-2">
+                <li><a href="#about" className="text-gray-400 hover:text-white transition-colors">About Us</a></li>
+                <li><a href="#testimonials" className="text-gray-400 hover:text-white transition-colors">Testimonials</a></li>
+                <li><a href="#contact" className="text-gray-400 hover:text-white transition-colors">Contact</a></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="text-lg font-semibold mb-4">Legal</h4>
+              <ul className="space-y-2">
+                <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Privacy Policy</a></li>
+                <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Terms of Service</a></li>
+                <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Licenses</a></li>
+              </ul>
+            </div>
+          </div>
+          <div className="pt-8 border-t border-gray-800 text-center text-gray-400 text-sm">
+            <p>© {new Date().getFullYear()} EITS Services. All rights reserved.</p>
           </div>
         </div>
       </footer>
     </div>
   );
-}
+};
+
+export default HomePage;
