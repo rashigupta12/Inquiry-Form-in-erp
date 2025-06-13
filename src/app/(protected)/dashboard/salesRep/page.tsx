@@ -4,7 +4,7 @@
 import InquiryManagement from "@/components/salesRep/InquiryForm";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useCurrentUser } from "@/hooks/auth";
-import { LogOut, Menu, Settings, Users, X } from "lucide-react";
+import { LogOut, Menu, Users, X } from "lucide-react";
 import { signOut } from "next-auth/react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
