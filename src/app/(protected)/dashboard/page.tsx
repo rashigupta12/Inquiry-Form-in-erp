@@ -13,9 +13,7 @@ export default function Dashboard() {
   console.log("role",role);
 
   
-  if (!role) {
-    window.location.reload();
-  }
+ 
 
   useEffect(() => {
     if (!role) {

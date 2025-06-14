@@ -186,12 +186,12 @@ const HomePage = () => {
               <a href="#testimonials" className="block py-3 px-4 rounded-lg hover:bg-gray-50 text-gray-700 font-medium">Testimonials</a>
               <a href="#about" className="block py-3 px-4 rounded-lg hover:bg-gray-50 text-gray-700 font-medium">About</a>
               <a href="#contact" className="block py-3 px-4 rounded-lg hover:bg-gray-50 text-gray-700 font-medium">Contact</a>
+              <Link href={"/auth/login"}>
               <button 
-                onClick={handleCallClick}
-                className="w-full text-left py-3 px-4 rounded-lg bg-gradient-to-r from-emerald-500 to-blue-500 text-white font-semibold hover:opacity-90 transition-opacity"
-              >
-                Call Now
-              </button>
+                className="px-6 py-2 bg-gradient-to-r from-emerald-500 to-blue-500 text-white rounded-full font-semibold hover:opacity-90 transition-opacity">
+                  Login Button
+                </button>
+                </Link>
             </div>
           </div>
         )}

@@ -1036,7 +1036,7 @@ const InquiryPage = () => {
                         placeholder="Enter building name"
                       />
                     </div>
-                    <div>
+                    {/* <div>
                       <label
                         htmlFor="inspectionPropertyType"
                         className="block text-sm font-medium text-gray-700 mb-1"
@@ -1060,7 +1060,7 @@ const InquiryPage = () => {
                           ))}
                         </SelectContent>
                       </Select>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
 
@@ -1130,7 +1130,7 @@ const InquiryPage = () => {
                         htmlFor="specialRequirements"
                         className="block text-sm font-medium text-gray-700 mb-1"
                       >
-                        Special Requirements
+                        Remarks
                       </label>
                       <Textarea
                         id="specialRequirements"
@@ -1141,7 +1141,7 @@ const InquiryPage = () => {
                         rows={3}
                       />
                     </div>
-                    <div>
+                    {/* <div>
                       <label
                         htmlFor="mapLocation"
                         className="block text-sm font-medium text-gray-700 mb-1"
@@ -1156,8 +1156,8 @@ const InquiryPage = () => {
                         onChange={handleInputChange}
                         placeholder="Enter map location or coordinates"
                       />
-                    </div>
-                    <div>
+                    </div> */}
+                    {/* <div>
                       <label
                         htmlFor="status"
                         className="block text-sm font-medium text-gray-700 mb-1"
@@ -1181,7 +1181,7 @@ const InquiryPage = () => {
                           ))}
                         </SelectContent>
                       </Select>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
               </div>
