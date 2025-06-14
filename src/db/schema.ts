@@ -29,8 +29,8 @@ export const UsersTable = pgTable(
     password: text("password").notNull(),
     mobile: text("mobile"),
     role: UserRole("role").default("SALES_REP").notNull(),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at").notNull(),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { mode: "date" }).defaultNow().notNull(),
   },
   (table) => [
     uniqueIndex("users_email_key").on(table.email),
@@ -123,12 +123,13 @@ export const InspectionPropertyType = pgEnum("inspection_property_type", [
 ]);
 
 export const BudgetRange = pgEnum("budget_range", [
-  "under-10k",
-  "10k-50k",
-  "50k-100k", 
-  "100k-500k",
-  "above-500k"
+  "under-500-aed",
+  "500-2000-aed",
+  "2000-4500-aed",
+  "4500-22000-aed",
+  "above-22000-aed"
 ]);
+
 
 export const ProjectUrgency = pgEnum("project_urgency", [
   "urgent",
@@ -166,15 +167,16 @@ export const InquiriesTable = pgTable(
     projectUrgency: ProjectUrgency("project_urgency"),
     specialRequirements: text("special_requirements"),
     
-    // // Scheduling
-    preferredInspectionDate: text("preferred_inspection_date"),
-    alternativeInspectionDate: text("alternative_inspection_date"),
+    // Scheduling - FIXED: Added mode: "date" for proper Date object handling
+    preferredInspectionDate: timestamp("preferred_inspection_date", { mode: "date" }),
+    alternativeInspectionDate: timestamp("alternative_inspection_date", { mode: "date" }),
+    
     // Status
     status: InquiryStatus("status").default("new").notNull(),
     
-    // System fields
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at").notNull(),
+    // System fields - FIXED: Added mode: "date" and defaultNow() for updatedAt
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { mode: "date" }).defaultNow().notNull(),
   },
   (table) => [
     index("inquiries_job_type_idx").on(table.jobType),

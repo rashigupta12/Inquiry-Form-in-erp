@@ -35,11 +35,11 @@ export const INSPECTION_PROPERTY_TYPES = [
 ] as const;
 
 export const BUDGET_RANGES = [
-  "under-10k",
-  "10k-50k",
-  "50k-100k",
-  "100k-500k",
-  "above-500k"
+  "under-500-aed",
+  "500-2000-aed",
+  "2000-4500-aed",
+  "4500-22000-aed",
+  "above-22000-aed"
 ] as const;
 
 export const PROJECT_URGENCIES = [

@@ -71,14 +71,14 @@ const InquiryPage = () => {
     ContactNumber: "",
     jobType: "joineries-wood-work",
     country: "United Arab Emirates",
-    state: "Dubai", // Add this line
-    city: "Dubai", // Add this line
+    state: "Dubai",
+    city: "Dubai",
     area: "",
     propertyType: "residential",
     buildingType: "villa",
     buildingName: "",
     inspectionPropertyType: "residential",
-    budgetRange: "under-10k",
+    budgetRange: "under-500-aed",
     projectUrgency: "normal",
     preferredInspectionDate: undefined,
     alternativeInspectionDate: undefined,
@@ -93,10 +93,20 @@ const InquiryPage = () => {
     (() => void) | null
   >(null);
 
+  // Initialize countries on component mount
   useEffect(() => {
-    // Initialize with UAE, Dubai, Dubai
+    try {
+      const countries = Country.getAllCountries();
+      setAllCountries(countries || []);
+    } catch (error) {
+      console.error("Error loading countries:", error);
+      setAllCountries([]);
+    }
+  }, []);
+
+  // Initialize default location (UAE, Dubai, Dubai)
+  useEffect(() => {
     const initializeLocation = () => {
-      // Find UAE country object
       const uaeCountry = allCountries.find(
         (country) => country.name === "United Arab Emirates"
       );
@@ -104,14 +114,12 @@ const InquiryPage = () => {
       if (uaeCountry) {
         setSelectedCountry(uaeCountry);
 
-        // Get states for UAE
         const uaeStates = State.getStatesOfCountry(uaeCountry.isoCode);
         const dubaiState = uaeStates.find((state) => state.name === "Dubai");
 
         if (dubaiState) {
           setSelectedState(dubaiState);
 
-          // Get cities for Dubai state
           const dubaicities = City.getCitiesOfState(
             dubaiState.countryCode,
             dubaiState.isoCode
@@ -125,22 +133,10 @@ const InquiryPage = () => {
       }
     };
 
-    // Only initialize if countries are loaded and no country is selected yet
     if (allCountries.length > 0 && !selectedCountry) {
       initializeLocation();
     }
   }, [allCountries, selectedCountry]);
-
-  // Initialize countries on component mount
-  useEffect(() => {
-    try {
-      const countries = Country.getAllCountries();
-      setAllCountries(countries || []);
-    } catch (error) {
-      console.error("Error loading countries:", error);
-      setAllCountries([]);
-    }
-  }, []);
 
   // Get states for selected country
   const [states, setStates] = useState<IState[]>([]);
@@ -204,6 +200,32 @@ const InquiryPage = () => {
     fetchInquiries();
   }, [fetchInquiries]);
 
+  // Helper function to set location dropdowns based on form data
+  const setLocationFromFormData = (inquiry: Inquiry) => {
+    // Find and set country
+    const country = allCountries.find((c) => c.name === inquiry.country);
+    if (country) {
+      setSelectedCountry(country);
+
+      // Find and set state
+      const stateList = State.getStatesOfCountry(country.isoCode);
+      const state = stateList.find((s) => s.name === inquiry.state);
+      if (state) {
+        setSelectedState(state);
+
+        // Find and set city
+        const cityList = City.getCitiesOfState(
+          state.countryCode,
+          state.isoCode
+        );
+        const city = cityList.find((c) => c.name === inquiry.city);
+        if (city) {
+          setSelectedCity(city);
+        }
+      }
+    }
+  };
+
   console.log("Inquires:", inquiries);
 
   const handleInputChange = (
@@ -229,14 +251,14 @@ const InquiryPage = () => {
       ContactNumber: "",
       jobType: "joineries-wood-work",
       country: "United Arab Emirates",
-      state: "Dubai", // Add this line
-      city: "Dubai", // Add this line
+      state: "Dubai",
+      city: "Dubai",
       area: "",
       propertyType: "residential",
       buildingType: "villa",
       buildingName: "",
       inspectionPropertyType: "residential",
-      budgetRange: "under-10k",
+      budgetRange: "under-500-aed",
       projectUrgency: "normal",
       preferredInspectionDate: undefined,
       alternativeInspectionDate: undefined,
@@ -245,27 +267,51 @@ const InquiryPage = () => {
       mapLocation: "",
     });
 
+    // Reset location selections to default UAE, Dubai, Dubai
     const uaeCountry = allCountries.find(
       (country) => country.name === "United Arab Emirates"
     );
     if (uaeCountry) {
       setSelectedCountry(uaeCountry);
-      // You might also want to reset state and city selections here
+      
+      const uaeStates = State.getStatesOfCountry(uaeCountry.isoCode);
+      const dubaiState = uaeStates.find((state) => state.name === "Dubai");
+      
+      if (dubaiState) {
+        setSelectedState(dubaiState);
+        
+        const dubaicities = City.getCitiesOfState(
+          dubaiState.countryCode,
+          dubaiState.isoCode
+        );
+        const dubaiCity = dubaicities.find((city) => city.name === "Dubai");
+        
+        if (dubaiCity) {
+          setSelectedCity(dubaiCity);
+        }
+      }
     }
   };
 
   const openSidebar = (inquiry: Inquiry | null = null) => {
     if (inquiry) {
       setCurrentInquiry(inquiry);
+
       setFormData({
         ...inquiry,
         preferredInspectionDate: inquiry.preferredInspectionDate
-          ? new Date(inquiry.preferredInspectionDate).toISOString()
+          ? new Date(inquiry.preferredInspectionDate)
           : undefined,
         alternativeInspectionDate: inquiry.alternativeInspectionDate
-          ? new Date(inquiry.alternativeInspectionDate).toISOString()
+          ? new Date(inquiry.alternativeInspectionDate)
           : undefined,
       });
+
+      // Set location dropdowns based on inquiry data
+      // Use setTimeout to ensure allCountries is available
+      setTimeout(() => {
+        setLocationFromFormData(inquiry);
+      }, 0);
     } else {
       setCurrentInquiry(null);
       resetForm();
@@ -286,32 +332,67 @@ const InquiryPage = () => {
 
     // Required field validation
     if (!formData.name) {
-      confirm("Name is required");
+      alert("Name is required");
       return;
     }
     if (!formData.email) {
-      confirm("Email is required");
+      alert("Email is required");
       return;
     }
     if (!formData.ContactNumber) {
-      confirm("Contact number is required");
+      alert("Contact number is required");
       return;
     }
     if (!formData.jobType) {
-      confirm("Job type is required");
+      alert("Job type is required");
       return;
     }
 
     try {
+      // Improved date processing
+      const processDate = (dateValue: any): string | null => {
+        if (!dateValue) return null;
+
+        if (dateValue instanceof Date && !isNaN(dateValue.getTime())) {
+          return dateValue.toISOString();
+        }
+
+        if (typeof dateValue === "string" && dateValue.trim() !== "") {
+          const date = new Date(dateValue);
+          return isNaN(date.getTime()) ? null : date.toISOString();
+        }
+
+        return null;
+      };
+
+      // Prepare the data with properly formatted dates
+      const submitData = {
+        ...formData,
+        preferredInspectionDate: processDate(formData.preferredInspectionDate),
+        alternativeInspectionDate: processDate(
+          formData.alternativeInspectionDate
+        ),
+      };
+
+      console.log("Submitting data:", submitData);
+
       if (currentInquiry?.id) {
-        await updateInquiry(currentInquiry.id, formData as Inquiry);
+        await updateInquiry(currentInquiry.id, submitData as Inquiry);
       } else {
-        await createInquiry(formData as Inquiry);
+        await createInquiry(submitData as Inquiry);
       }
+      
+      // Refresh the inquiries list instead of reloading the page
+      await fetchInquiries();
       closeSidebar();
-      window.location.reload(); // Refresh the page to show updated inquiries
     } catch (err) {
       console.error("Form submission error:", err);
+      alert(
+        "Error submitting form: " +
+          (err && typeof err === "object" && "message" in err
+            ? (err as { message?: string }).message
+            : String(err))
+      );
     }
   };
 
@@ -323,6 +404,8 @@ const InquiryPage = () => {
         if (currentInquiry?.id === id) {
           closeSidebar();
         }
+        // Refresh the inquiries list
+        await fetchInquiries();
       } catch (err) {
         console.error("Delete error:", err);
       } finally {
@@ -332,24 +415,6 @@ const InquiryPage = () => {
     setIsDeleteModalOpen(true);
   };
 
-  // const filteredInquiries = inquiries.filter(
-  //   (inquiry: Inquiry) =>
-  //     inquiry.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //     inquiry.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //     inquiry.ContactNumber.toLowerCase().includes(searchTerm.toLowerCase())
-  //     // inquiry.city?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //     // inquiry.area?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //     // inquiry.buildingName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //     // inquiry.specialRequirements
-  //     //   ?.toLowerCase()
-  //     //   .includes(searchTerm.toLowerCase()) ||
-  //     // inquiry.jobType.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //     // inquiry.budgetRange?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //     // inquiry.status.toLowerCase().includes(searchTerm.toLowerCase())
-  // );
-
-  // Replace the filteredInquiries function with this fixed version:
-
   const filteredInquiries = inquiries.filter(
     (inquiry: Inquiry) =>
       (inquiry.name?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
@@ -357,14 +422,6 @@ const InquiryPage = () => {
       (inquiry.ContactNumber?.toLowerCase() || "").includes(
         searchTerm.toLowerCase()
       )
-    // You can also uncomment and fix these other fields if needed:
-    // (inquiry.city?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-    // (inquiry.area?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-    // (inquiry.buildingName?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-    // (inquiry.specialRequirements?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-    // (inquiry.jobType?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-    // (inquiry.budgetRange?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-    // (inquiry.status?.toLowerCase() || '').includes(searchTerm.toLowerCase())
   );
 
   const capitalizeFirstLetter = (str: string): string => {
@@ -637,8 +694,6 @@ const InquiryPage = () => {
                     Contact Information
                   </h4>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {" "}
-                    {/* Changed from 2 to 3 columns */}
                     <div>
                       <label
                         htmlFor="name"
@@ -740,7 +795,7 @@ const InquiryPage = () => {
                         Budget Range
                       </label>
                       <Select
-                        value={formData.budgetRange || "under-10k"}
+                        value={formData.budgetRange || "under-500-aed"}
                         onValueChange={(value) =>
                           handleSelectChange("budgetRange", value)
                         }
@@ -750,11 +805,11 @@ const InquiryPage = () => {
                         </SelectTrigger>
                         <SelectContent>
                           {[
-                            "under-10k",
-                            "10k-50k",
-                            "50k-100k",
-                            "100k-500k",
-                            "above-500k",
+                            "under-500-aed",
+                            "500-2000-aed",
+                            "2000-4500-aed",
+                            "4500-22000-aed",
+                            "above-22000-aed",
                           ].map((range) => (
                             <SelectItem key={range} value={range}>
                               {capitalizeFirstLetter(range.replace(/-/g, " "))}
@@ -795,33 +850,6 @@ const InquiryPage = () => {
                         </SelectContent>
                       </Select>
                     </div>
-                    <div>
-                      <label
-                        htmlFor="preferredInspectionDate"
-                        className="block text-sm font-medium text-gray-700 mb-1"
-                      >
-                        Preferred Inspection Date
-                      </label>
-                      <input
-                        type="date"
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                        value={
-                          formData.preferredInspectionDate
-                            ? new Date(formData.preferredInspectionDate)
-                                .toISOString()
-                                .split("T")[0]
-                            : ""
-                        }
-                        onChange={(e) =>
-                          handleDateChange(
-                            "preferredInspectionDate",
-                            e.target.value
-                              ? new Date(e.target.value)
-                              : undefined
-                          )
-                        }
-                      />
-                    </div>
                   </div>
                 </div>
 
@@ -831,159 +859,112 @@ const InquiryPage = () => {
                     <MapPin className="h-4 w-4" />
                     Location Information
                   </h4>
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div>
-                        <label
-                          htmlFor="country"
-                          className="block text-sm font-medium text-gray-700 mb-1"
-                        >
-                          Country
-                        </label>
-                        <Select
-                          value={formData.country || ""}
-                          onValueChange={(value) => {
-                            const country = allCountries.find(
-                              (c) => c.name === value
-                            );
-                            setSelectedCountry(country || null);
-                            setSelectedState(null);
-                            setSelectedCity(null);
-                            handleSelectChange("country", value);
-                          }}
-                          disabled={loading || allCountries.length === 0}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select country" />
-                          </SelectTrigger>
-                          <SelectContent className="max-h-[300px] overflow-y-auto">
-                            {allCountries.map((country) => (
-                              <SelectItem
-                                key={country.isoCode}
-                                value={country.name}
-                              >
-                                {country.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <div>
-                        <label
-                          htmlFor="state"
-                          className="block text-sm font-medium text-gray-700 mb-1"
-                        >
-                          State/Province
-                        </label>
-                        <Select
-                          value={formData.state || ""}
-                          onValueChange={(value) => {
-                            const state = states.find((s) => s.name === value);
-                            setSelectedState(state || null);
-                            setSelectedCity(null);
-                            handleSelectChange("state", value);
-                          }}
-                          disabled={
-                            !selectedCountry || loading || states.length === 0
-                          }
-                        >
-                          <SelectTrigger>
-                            <SelectValue
-                              placeholder={
-                                selectedCountry
-                                  ? "Select state"
-                                  : "Select country first"
-                              }
-                            />
-                          </SelectTrigger>
-                          <SelectContent className="max-h-[300px] overflow-y-auto">
-                            {states.length > 0 ? (
-                              states.map((state) => (
-                                <SelectItem
-                                  key={state.isoCode}
-                                  value={state.name}
-                                >
-                                  {state.name}
-                                </SelectItem>
-                              ))
-                            ) : (
-                              <SelectItem value="-" disabled>
-                                No states available
-                              </SelectItem>
-                            )}
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <div>
-                        <label
-                          htmlFor="city"
-                          className="block text-sm font-medium text-gray-700 mb-1"
-                        >
-                          City
-                        </label>
-                        <Select
-                          value={formData.city || ""}
-                          onValueChange={(value) => {
-                            const city = cities.find((c) => c.name === value);
-                            setSelectedCity(city || null);
-                            handleSelectChange("city", value);
-                          }}
-                          disabled={
-                            !selectedState || loading || cities.length === 0
-                          }
-                        >
-                          <SelectTrigger>
-                            <SelectValue
-                              placeholder={
-                                selectedState
-                                  ? "Select city"
-                                  : "Select state first"
-                              }
-                            />
-                          </SelectTrigger>
-                          <SelectContent className="max-h-[300px] overflow-y-auto">
-                            {cities.length > 0 ? (
-                              cities.map((city) => (
-                                <SelectItem
-                                  key={`${city.name}-${city.stateCode}`}
-                                  value={city.name}
-                                >
-                                  {city.name}
-                                </SelectItem>
-                              ))
-                            ) : (
-                              <SelectItem value="-" disabled>
-                                No cities available
-                              </SelectItem>
-                            )}
-                          </SelectContent>
-                        </Select>
-                      </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label
+                        htmlFor="country"
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
+                        Country
+                      </label>
+                      <Select
+                        value={selectedCountry?.isoCode || ""}
+                        onValueChange={(value) => {
+                          const country = allCountries.find(c => c.isoCode === value);
+                          setSelectedCountry(country || null);
+                          setSelectedState(null);
+                          setSelectedCity(null);
+                        }}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select country" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {allCountries.map((country) => (
+                            <SelectItem key={country.isoCode} value={country.isoCode}>
+                              {country.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
-
+                    <div>
+                      <label
+                        htmlFor="state"
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
+                        State
+                      </label>
+                      <Select
+                        value={selectedState?.isoCode || ""}
+                        onValueChange={(value) => {
+                          const state = states.find(s => s.isoCode === value);
+                          setSelectedState(state || null);
+                          setSelectedCity(null);
+                        }}
+                        disabled={!selectedCountry}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select state" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {states.map((state) => (
+                            <SelectItem key={state.isoCode} value={state.isoCode}>
+                              {state.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <label
+                        htmlFor="city"
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
+                        City
+                      </label>
+                      <Select
+                        value={selectedCity?.name || ""}
+                        onValueChange={(value) => {
+                          const city = cities.find(c => c.name === value);
+                          setSelectedCity(city || null);
+                        }}
+                        disabled={!selectedState}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select city" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {cities.map((city) => (
+                            <SelectItem key={city.name} value={city.name}>
+                              {city.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
                     <div>
                       <label
                         htmlFor="area"
                         className="block text-sm font-medium text-gray-700 mb-1"
                       >
-                        Area/Locality
+                        Area
                       </label>
                       <Input
+                        type="text"
                         id="area"
                         name="area"
                         value={formData.area || ""}
                         onChange={handleInputChange}
-                        placeholder="Enter area/locality"
+                        placeholder="Enter area"
                       />
                     </div>
                   </div>
                 </div>
 
                 {/* Property Information */}
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <h4 className="text-sm font-medium text-gray-700 uppercase tracking-wider flex items-center gap-2 mb-4">
+                <div className="bg-gray-50 p-2 rounded-lg">
+                  <h4 className="text-sm font-medium text-gray-700 uppercase tracking-wider flex items-center gap-2 mb-2">
                     <Building className="h-4 w-4" />
                     Property Information
                   </h4>
@@ -996,7 +977,7 @@ const InquiryPage = () => {
                         Property Type
                       </label>
                       <Select
-                        value={formData.propertyType ?? undefined}
+                        value={formData.propertyType || "residential"}
                         onValueChange={(value) =>
                           handleSelectChange("propertyType", value)
                         }
@@ -1005,7 +986,7 @@ const InquiryPage = () => {
                           <SelectValue placeholder="Select property type" />
                         </SelectTrigger>
                         <SelectContent>
-                          {["residential", "commercial"].map((type) => (
+                          {["residential", "commercial", "industrial"].map((type) => (
                             <SelectItem key={type} value={type}>
                               {capitalizeFirstLetter(type)}
                             </SelectItem>
@@ -1021,7 +1002,7 @@ const InquiryPage = () => {
                         Building Type
                       </label>
                       <Select
-                        value={formData.buildingType ?? undefined}
+                        value={formData.buildingType || "villa"}
                         onValueChange={(value) =>
                           handleSelectChange("buildingType", value)
                         }
@@ -1030,13 +1011,11 @@ const InquiryPage = () => {
                           <SelectValue placeholder="Select building type" />
                         </SelectTrigger>
                         <SelectContent>
-                          {["villa", "apartment", "shop", "office"].map(
-                            (type) => (
-                              <SelectItem key={type} value={type}>
-                                {capitalizeFirstLetter(type)}
-                              </SelectItem>
-                            )
-                          )}
+                          {["villa", "apartment", "office", "warehouse", "other"].map((type) => (
+                            <SelectItem key={type} value={type}>
+                              {capitalizeFirstLetter(type)}
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                     </div>
@@ -1048,6 +1027,7 @@ const InquiryPage = () => {
                         Building Name
                       </label>
                       <Input
+                        type="text"
                         id="buildingName"
                         name="buildingName"
                         value={formData.buildingName || ""}
@@ -1063,22 +1043,20 @@ const InquiryPage = () => {
                         Inspection Property Type
                       </label>
                       <Select
-                        value={formData.inspectionPropertyType ?? undefined}
+                        value={formData.inspectionPropertyType || "residential"}
                         onValueChange={(value) =>
                           handleSelectChange("inspectionPropertyType", value)
                         }
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder="Select inspection type" />
+                          <SelectValue placeholder="Select inspection property type" />
                         </SelectTrigger>
                         <SelectContent>
-                          {["residential", "commercial", "industrial"].map(
-                            (type) => (
-                              <SelectItem key={type} value={type}>
-                                {capitalizeFirstLetter(type)}
-                              </SelectItem>
-                            )
-                          )}
+                          {["residential", "commercial", "industrial"].map((type) => (
+                            <SelectItem key={type} value={type}>
+                              {capitalizeFirstLetter(type)}
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                     </div>
@@ -1086,12 +1064,34 @@ const InquiryPage = () => {
                 </div>
 
                 {/* Inspection Dates */}
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <h4 className="text-sm font-medium text-gray-700 uppercase tracking-wider flex items-center gap-2 mb-4">
-                    <Clock className="h-4 w-4" />
+                <div className="bg-gray-50 p-2 rounded-lg">
+                  <h4 className="text-sm font-medium text-gray-700 uppercase tracking-wider flex items-center gap-2 mb-2">
+                    <Calendar className="h-4 w-4" />
                     Inspection Dates
                   </h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label
+                        htmlFor="preferredInspectionDate"
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
+                        Preferred Inspection Date
+                      </label>
+                      <Input
+                        type="date"
+                        id="preferredInspectionDate"
+                        name="preferredInspectionDate"
+                        value={
+                          formData.preferredInspectionDate instanceof Date
+                            ? formData.preferredInspectionDate.toISOString().split('T')[0]
+                            : formData.preferredInspectionDate || ""
+                        }
+                        onChange={(e) => {
+                          const date = e.target.value ? new Date(e.target.value) : undefined;
+                          handleDateChange("preferredInspectionDate", date);
+                        }}
+                      />
+                    </div>
                     <div>
                       <label
                         htmlFor="alternativeInspectionDate"
@@ -1099,36 +1099,47 @@ const InquiryPage = () => {
                       >
                         Alternative Inspection Date
                       </label>
-                      <input
+                      <Input
                         type="date"
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        id="alternativeInspectionDate"
+                        name="alternativeInspectionDate"
                         value={
-                          formData.alternativeInspectionDate
-                            ? new Date(formData.alternativeInspectionDate)
-                                .toISOString()
-                                .split("T")[0]
-                            : ""
+                          formData.alternativeInspectionDate instanceof Date
+                            ? formData.alternativeInspectionDate.toISOString().split('T')[0]
+                            : formData.alternativeInspectionDate || ""
                         }
-                        onChange={(e) =>
-                          handleDateChange(
-                            "alternativeInspectionDate",
-                            e.target.value
-                              ? new Date(e.target.value)
-                              : undefined
-                          )
-                        }
+                        onChange={(e) => {
+                          const date = e.target.value ? new Date(e.target.value) : undefined;
+                          handleDateChange("alternativeInspectionDate", date);
+                        }}
                       />
                     </div>
                   </div>
                 </div>
 
-                {/* Special Requirements */}
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <h4 className="text-sm font-medium text-gray-700 uppercase tracking-wider flex items-center gap-2 mb-4">
+                {/* Additional Information */}
+                <div className="bg-gray-50 p-2 rounded-lg">
+                  <h4 className="text-sm font-medium text-gray-700 uppercase tracking-wider flex items-center gap-2 mb-2">
                     <FileText className="h-4 w-4" />
                     Additional Information
                   </h4>
-                  {/* <div className="space-y-4">
+                  <div className="grid grid-cols-1 gap-4">
+                    <div>
+                      <label
+                        htmlFor="specialRequirements"
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
+                        Special Requirements
+                      </label>
+                      <Textarea
+                        id="specialRequirements"
+                        name="specialRequirements"
+                        value={formData.specialRequirements || ""}
+                        onChange={handleInputChange}
+                        placeholder="Enter any special requirements or notes"
+                        rows={3}
+                      />
+                    </div>
                     <div>
                       <label
                         htmlFor="mapLocation"
@@ -1137,109 +1148,90 @@ const InquiryPage = () => {
                         Map Location
                       </label>
                       <Input
+                        type="text"
                         id="mapLocation"
                         name="mapLocation"
                         value={formData.mapLocation || ""}
                         onChange={handleInputChange}
-                        placeholder="Enter map location URL or coordinates"
+                        placeholder="Enter map location or coordinates"
                       />
                     </div>
-                  </div> */}
-                  {/* Status */}
-                  <div className="mt-4">
-                    <label
-                      htmlFor="status"
-                      className="block text-sm font-medium text-gray-700 mb-1"
-                    >
-                      Status
-                    </label>
-                    <Select
-                      value={formData.status || "new"}
-                      onValueChange={(value) =>
-                        handleSelectChange("status", value)
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select status" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {["new", "in-progress", "completed", "cancelled"].map(
-                          (status) => (
+                    <div>
+                      <label
+                        htmlFor="status"
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
+                        Status
+                      </label>
+                      <Select
+                        value={formData.status || "new"}
+                        onValueChange={(value) =>
+                          handleSelectChange("status", value)
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {["new", "in-progress", "completed", "cancelled"].map((status) => (
                             <SelectItem key={status} value={status}>
-                              {capitalizeFirstLetter(status)}
+                              {capitalizeFirstLetter(status.replace(/-/g, " "))}
                             </SelectItem>
-                          )
-                        )}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <label
-                      htmlFor="specialRequirements"
-                      className="block text-sm font-medium text-gray-700 mb-1"
-                    >
-                      Special Requirements
-                    </label>
-                    <Textarea
-                      id="specialRequirements"
-                      name="specialRequirements"
-                      value={formData.specialRequirements || ""}
-                      onChange={handleInputChange}
-                      placeholder="Enter any special requirements"
-                      rows={3}
-                    />
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
                 </div>
               </div>
-            </form>
-          </div>
 
-          {/* Form Footer */}
-          <div className="p-4 border-t bg-gray-50">
-            <div className="flex justify-end gap-3">
-              <Button
-                variant="outline"
-                onClick={closeSidebar}
-                className="border-gray-300 hover:bg-gray-100"
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleSubmit}
-                disabled={loading}
-                className="bg-gradient-to-r from-emerald-600 to-blue-600 hover:from-emerald-700 hover:to-blue-700 text-white shadow-lg"
-              >
-                {loading ? (
-                  <>
-                    <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full mr-2"></div>
-                    {currentInquiry ? "Updating..." : "Creating..."}
-                  </>
-                ) : (
-                  <>
-                    <Save className="h-4 w-4 mr-2" />
-                    {currentInquiry ? "Update Inquiry" : "Create Inquiry"}
-                  </>
-                )}
-              </Button>
-            </div>
+              {/* Form Actions */}
+              <div className="flex justify-end gap-4 pt-6 border-t border-gray-200">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={closeSidebar}
+                  className="px-6"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={loading}
+                  className="px-6 bg-gradient-to-r from-emerald-600 to-blue-600 hover:from-emerald-700 hover:to-blue-700 text-white"
+                >
+                  {loading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white mr-2"></div>
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="h-4 w-4 mr-2" />
+                      {currentInquiry ? "Update" : "Create"} Inquiry
+                    </>
+                  )}
+                </Button>
+              </div>
+            </form>
           </div>
         </div>
       </div>
 
-      {/* Overlay for sidebar */}
-      {sidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-30 z-40 backdrop-blur-sm"
-          onClick={closeSidebar}
-        />
-      )}
-
-      <DeleteConfirmation
+   <DeleteConfirmation
         text={confirmText}
         onConfirm={onConfirmCallback ?? (() => {})}
         isOpen={isDeleteModalOpen}
         setIsOpen={setIsDeleteModalOpen}
       />
+
+      {/* Backdrop for sidebar */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
+          onClick={closeSidebar}
+        />
+      )}
     </div>
   );
 };

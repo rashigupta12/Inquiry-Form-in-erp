@@ -1,0 +1,2 @@
+ALTER TABLE "inquiries" ALTER COLUMN "preferred_inspection_date" SET DATA TYPE timestamp;--> statement-breakpoint
+ALTER TABLE "inquiries" ALTER COLUMN "alternative_inspection_date" SET DATA TYPE timestamp;
