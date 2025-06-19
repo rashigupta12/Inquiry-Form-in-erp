@@ -1,8 +1,6 @@
 // loginUser.ts
 "use server";
 
-import { signIn } from "@/auth";
-import { AuthError } from "next-auth";
 import * as z from "zod";
 import { findUserByEmail } from "./user";
 import { sendEmail } from "@/lib/mailer";
@@ -43,28 +41,33 @@ export async function loginUser(values: z.infer<typeof LoginSchema>) {
   }
 
   try {
-    // Don't include redirectTo in signIn call
-    const result = await signIn("credentials", {
-      email,
-      password,
-      redirect: false // Important: disable automatic redirect
+    // Make request to Frappe/ERPNext login endpoint
+    const response = await fetch("https://eits.thebigocommunity.org/api/method/login", {
+      method: "POST",
+      headers: {
+         'Accept': 'application/json',
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        usr: email,
+        pwd: password
+      }),
     });
 
-    if (result?.error) {
-      return { error: "Invalid credentials!" };
+    console.log("Login response status:", response);
+
+    const data = await response.json();
+    console.log("Login response data:", data);
+
+    if (!response.ok) {
+      return { error: data.message || "Invalid credentials!" };
     }
 
+    // If login is successful, you'll get a session cookie in the response
+    // You might want to handle the session cookie appropriately
     return { success: "Logged in successfully!", redirectTo: DEFAULT_LOGIN_REDIRECT };
   } catch (error) {
-    if (error instanceof AuthError) {
-      switch (error.type) {
-        case "CredentialsSignin":
-          return { error: "Invalid credentials!" };
-        default:
-          return { error: "Something went wrong!" };
-      }
-    }
+    console.error("Login error:", error);
     return { error: "An unexpected error occurred." };
   }
 }
-
